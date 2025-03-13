@@ -4,7 +4,6 @@ import jwt, { JwtPayload } from 'jsonwebtoken';
 import RequestError from '../errors/request-error';
 import { ExceptionType } from '../errors/exceptions';
 
-
 const authHandler = asyncHandler(async (req: Request, res: Response, next: NextFunction) => {
   const authHeader = req.headers.authorization;
 
