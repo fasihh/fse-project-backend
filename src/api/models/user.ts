@@ -1,15 +1,15 @@
 import mongoose, { Schema, Document } from "mongoose";
 import bcrypt from "bcrypt";
 
-interface IUser {
+export interface IUser {
   username: string;
   email: string;
   password: string;
   friendIds: mongoose.Schema.Types.ObjectId[];
 };
 
-interface IUserDocument extends IUser, Document {
-  comparePassword(incommingPassword: string): Promise<boolean>;
+export interface IUserDocument extends IUser, Document {
+  comparePassword(incomingPassword: string): Promise<boolean>;
 };
 
 const userSchema = new mongoose.Schema<IUserDocument>({
@@ -17,8 +17,7 @@ const userSchema = new mongoose.Schema<IUserDocument>({
   username: {
     type: String,
     required: true,
-    unique: true,
-    minlength: 6
+    unique: true
   },
   email: {
     type: String,
@@ -28,7 +27,7 @@ const userSchema = new mongoose.Schema<IUserDocument>({
   },
   password: {
     type: String,
-    required: true,
+    required: true
   },
   friendIds: {
     type: [{ type: mongoose.Schema.ObjectId, ref: 'User' }],
@@ -48,6 +47,9 @@ const userSchema = new mongoose.Schema<IUserDocument>({
 });
 
 userSchema.pre('save', async function (next) {
+  if (!this.isModified('password'))
+    return next();
+
   const saltRounds = 10;
   this.password = await bcrypt.hash(this.password, saltRounds);
   next();

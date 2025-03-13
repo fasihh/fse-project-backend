@@ -1,12 +1,13 @@
 import { Router } from "express";
 import asyncHandler from "../utils/async-handler";
 
-import userController from "../controllers/user";
+import UserController from "../controllers/user";
 
 const router = Router();
 
 router
-  .get('/', asyncHandler(userController.getAll))
-  .post('/register', asyncHandler(userController.register));
+  .get('/', asyncHandler(UserController.getAll))
+  .post('/register', asyncHandler(UserController.register))
+  .post('/login', asyncHandler(UserController.login));
 
 export default router;

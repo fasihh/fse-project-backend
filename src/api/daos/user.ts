@@ -15,7 +15,19 @@ class UserDAO {
   }
 
   async find(where?: { _id?: string, username?: string, email?: string }) {
-    return (await User.find(where ?? {})).map(user => user.toObject());
+    return await User.find(where ?? {});
+  }
+
+  async findOne(where?: { _id?: string, username?: string, email?: string }) {
+    return await User.findOne(where ?? {});
+  }
+
+  async findByUsername(username: string) {
+    return await User.findOne({ username });
+  }
+
+  async findByEmail(email: string) {
+    return await User.findOne({ email });
   }
 };
 
