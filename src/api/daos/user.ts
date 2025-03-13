@@ -14,12 +14,8 @@ class UserDAO {
     await user.save();
   }
 
-  async find(where?: { _id?: string, username?: string, email?: string }) {
-    return await User.find(where ?? {});
-  }
-
-  async findOne(where?: { _id?: string, username?: string, email?: string }) {
-    return await User.findOne(where ?? {});
+  async find() {
+    return await User.find();
   }
 
   async findByUsername(username: string) {

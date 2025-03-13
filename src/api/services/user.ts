@@ -8,8 +8,8 @@ dotenv.config();
 
 class UserService {
   async createUser(username: string, email: string, password: string) {
-    const user = await UserDAO.find({ username, email });
-    if (!!user.length)
+    const user = await UserDAO.findByUsername(username);
+    if (!!user)
       throw new RequestError(ExceptionType.USER_EXISTS);
     
     await UserDAO.create(username, email, password);
