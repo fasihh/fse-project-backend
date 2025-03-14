@@ -20,7 +20,7 @@ const communitySchema = new mongoose.Schema<ICommunityDocument>({
   },
   description: {
     type: String,
-    required: true
+    default: ""
   },
   postIds: {
     type: [{ type: mongoose.Schema.ObjectId, ref: 'Post' }],
