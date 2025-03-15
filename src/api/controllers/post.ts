@@ -3,6 +3,7 @@ import PostService from '../services/post'
 import RequestError from "../errors/request-error";
 import { ExceptionType } from "../errors/exceptions";
 import { deleteFileFromCloudinary } from "../utils/cloudinary";
+import { IUserDocument } from "../models/user";
 
 class PostController {
     async getAll(_req: Request, res: Response) {
@@ -28,7 +29,8 @@ class PostController {
         const title = req.body.title;
         const content = req.body.content;
         const creatorId = req.user.userId;
-
+        const username = req.user.username
+        
         if (!title || !content)
             throw new RequestError(ExceptionType.INVALID_REQUEST);
 
@@ -43,7 +45,7 @@ class PostController {
             original_filename: file.originalname
         })) || [];
 
-        await PostService.create(communityId, title, content, creatorId, fileData);
+        await PostService.create(username, communityId, title, content, creatorId, fileData);
 
         res.status(201).json({
             success: true,
@@ -96,6 +98,7 @@ class PostController {
 
     async deleteById(req: Request, res: Response) {
         const id = req.params.id;
+        const username = req.user.username
         const post = await PostService.findById(id);
 
         if (!post) {
@@ -110,7 +113,7 @@ class PostController {
             await deleteFileFromCloudinary(file.public_id);
         }
 
-        await PostService.deleteById(id);
+        await PostService.deleteById(username, id);
 
         res.status(200).json({
             success: true,

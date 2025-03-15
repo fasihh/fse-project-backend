@@ -8,10 +8,13 @@ export interface IUser {
   role: 'Admin' | 'Member';
   friendIds: mongoose.Schema.Types.ObjectId[];
   joinedCommunityIds: mongoose.Schema.Types.ObjectId[];
+  postIds: mongoose.Schema.Types.ObjectId[];
 };
 
 export interface IUserDocument extends IUser, Document {
   comparePassword(incomingPassword: string): Promise<boolean>;
+  addPost(postId: mongoose.Types.ObjectId): Promise<void>;
+  deletePost(postId: mongoose.Types.ObjectId): Promise<void>;
 };
 
 const userSchema = new mongoose.Schema<IUserDocument>({
@@ -44,6 +47,10 @@ const userSchema = new mongoose.Schema<IUserDocument>({
   joinedCommunityIds: {
     type: [{ type: mongoose.Schema.ObjectId, ref: 'Community' }],
     default: [],
+  },
+  postIds: {
+    type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Post'}],
+    default: [],
   }
 }, {
   versionKey: false,
@@ -69,6 +76,16 @@ userSchema.pre('save', async function (next) {
 
 userSchema.methods.comparePassword = async function(incomingPassword: string) {
   return await bcrypt.compare(incomingPassword, this.password);
+}
+
+userSchema.methods.addPost = async function(postId: mongoose.Types.ObjectId) {
+  this.postIds.push(postId);
+  await this.save();
+}
+
+userSchema.methods.deletePost = async function(postId: mongoose.Types.ObjectId) {
+  this.postIds.pull(postId);
+  await this.save();
 }
 
 export const User = mongoose.model('User', userSchema);
