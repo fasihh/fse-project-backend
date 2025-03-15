@@ -7,6 +7,7 @@ export interface IUser {
   password: string;
   role: 'Admin' | 'Member';
   friendIds: mongoose.Schema.Types.ObjectId[];
+  joinedCommunityIds: mongoose.Schema.Types.ObjectId[];
 };
 
 export interface IUserDocument extends IUser, Document {
@@ -38,6 +39,10 @@ const userSchema = new mongoose.Schema<IUserDocument>({
   },
   friendIds: {
     type: [{ type: mongoose.Schema.ObjectId, ref: 'User' }],
+    default: []
+  },
+  joinedCommunityIds: {
+    type: [{ type: mongoose.Schema.ObjectId, ref: 'Community' }],
     default: []
   }
 }, {

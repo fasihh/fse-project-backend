@@ -14,14 +14,20 @@ class PostService {
     }
 
     async findById(id: string) {
-        return await PostDAO.findById(id);
+        const res = await PostDAO.findById(id);
+        if (!res)
+            throw new RequestError(ExceptionType.NOT_FOUND);
+        return res;
     }
 
     async create(communityId: string, title: string, content: string, creatorId: string, files?: PostFile[]) {
-        const community: ICommunityDocument | null = await CommunityDAO.findById(communityId);
+        const community = await CommunityDAO.findById(communityId);
 
         if (!community)
-            throw new RequestError(ExceptionType.NOT_FOUND)
+            throw new RequestError(ExceptionType.NOT_FOUND);
+
+        if (!community.memberIds.some(memberId => memberId.toString() === creatorId))
+            throw new RequestError(ExceptionType.UNAUTHORIZED);
 
         const post = new Post({
             _id: new mongoose.Types.ObjectId,
@@ -30,19 +36,23 @@ class PostService {
             content: content,
             files: files || [],
             creatorId: creatorId,
-        })
+        });
 
-        await community.addPost(post._id as mongoose.Types.ObjectId)
+        await community.addPost(post._id as mongoose.Types.ObjectId);
 
-        await PostDAO.create(post)
+        await PostDAO.create(post);
     }
 
-    async updateById(id: string, post: Partial<IPost>) {
-        await PostDAO.updateById(id, post);
+    async updatePost(postId: string, post: Partial<IPost>) {
+        const res = await PostDAO.updateById(postId, post);
+        if (res.modifiedCount === 0)
+            throw new RequestError(ExceptionType.NOT_FOUND);
     }
 
     async deleteById(id: string) {
-        await PostDAO.deleteById(id);
+        const res = await PostDAO.deleteById(id);
+        if (res.deletedCount === 0)
+            throw new RequestError(ExceptionType.NOT_FOUND);
     }
 }
 

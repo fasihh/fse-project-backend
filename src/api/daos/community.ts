@@ -11,15 +11,15 @@ class CommunityDAO {
   }
 
   async create(community: ICommunityDocument) {
-    await community.save();
+    return await community.save();
   }
 
   async updateById(id: string, community: Partial<ICommunity>) {
-    await Community.updateOne({ _id: id }, { $set: community });
+    return await Community.updateOne({ _id: id }, { $set: community });
   }
 
   async deleteById(id: string) {
-    await Community.deleteOne({ _id: id });
+    return await Community.deleteOne({ _id: id });
   }
 };
 

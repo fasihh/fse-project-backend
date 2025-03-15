@@ -23,7 +23,7 @@ class CommunityController {
   }
 
   async create(req: Request, res: Response) {
-    if (req.user.role !== 'Admin')
+    if (req.user!.role !== 'Admin')
       throw new RequestError(ExceptionType.UNAUTHORIZED);
 
     const title = req.body.title;
@@ -40,8 +40,19 @@ class CommunityController {
     });
   }
 
+  async join(req: Request, res: Response) {
+    const communityId = req.params.id;
+    
+    await CommunityService.join(communityId, req.user!.userId);
+    
+    res.status(200).json({
+      success: true,
+      message: 'Community joined successfully.'
+    });
+  }
+
   async updateById(req: Request, res: Response) {
-    if (req.user.role !== 'Admin')
+    if (req.user!.role !== 'Admin')
       throw new RequestError(ExceptionType.UNAUTHORIZED);
 
     const id = req.params.id;
@@ -59,7 +70,7 @@ class CommunityController {
   }
 
   async deleteById(req: Request, res: Response) {
-    if (req.user.role !== 'Admin')
+    if (req.user!.role !== 'Admin')
       throw new RequestError(ExceptionType.UNAUTHORIZED);
 
     const id = req.params.id;
