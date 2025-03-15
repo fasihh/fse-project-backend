@@ -9,6 +9,7 @@ export interface ICommunity {
 
 export interface ICommunityDocument extends ICommunity, Document {
   addPost(postId: mongoose.Types.ObjectId): Promise<void>;
+  deletePost(postId: mongoose.Types.ObjectId): Promise<void>;
 };
 
 const communitySchema = new mongoose.Schema<ICommunityDocument>({
@@ -37,6 +38,11 @@ const communitySchema = new mongoose.Schema<ICommunityDocument>({
 
 communitySchema.methods.addPost = async function(postId: mongoose.Types.ObjectId) {
   this.postIds.push(postId);
+  await this.save();
+}
+
+communitySchema.methods.deletePost = async function(postId: mongoose.Types.ObjectId) {
+  this.postIds.pull(postId);
   await this.save();
 }
 

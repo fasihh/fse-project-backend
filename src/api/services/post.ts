@@ -42,6 +42,13 @@ class PostService {
     }
 
     async deleteById(id: string) {
+        const post = await PostDAO.findById(id);
+        if (!post) throw new RequestError(ExceptionType.NOT_FOUND);
+
+        const community = await CommunityDAO.findById(post.communityId.toString());
+        if (!community) throw new RequestError(ExceptionType.NOT_FOUND);
+
+        await community.deletePost(new mongoose.Types.ObjectId(id));
         await PostDAO.deleteById(id);
     }
 }
