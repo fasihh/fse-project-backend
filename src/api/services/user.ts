@@ -1,9 +1,10 @@
 import UserDAO from "../daos/user";
-import { type IUserDocument as User } from "../models/user";
+import { type IUserDocument, User } from "../models/user";
 import jwt from 'jsonwebtoken';
 import { ExceptionType } from "../errors/exceptions";
 import RequestError from "../errors/request-error";
 import dotenv from 'dotenv';
+import mongoose from "mongoose";
 dotenv.config();
 
 class UserService {
@@ -11,8 +12,16 @@ class UserService {
     const user = await UserDAO.findByUsername(username);
     if (!!user)
       throw new RequestError(ExceptionType.USER_EXISTS);
+
+    const new_user = new User({
+      _id: new mongoose.Types.ObjectId,
+      username,
+      email,
+      password,
+      friendIds: []
+    });
     
-    await UserDAO.create(username, email, password);
+    await UserDAO.create(new_user);
   }
 
   async findAll() {
@@ -22,7 +31,7 @@ class UserService {
   async login(credentials: { username?: string, email?: string, password: string }) {
     const { username, email, password } = credentials;
 
-    let user: User | null = null;
+    let user: IUserDocument | null = null;
     if (username)
       user = await UserDAO.findByUsername(username);
     else if (email)

@@ -1,16 +1,8 @@
 import mongoose from "mongoose";
-import { User } from "../models/user";
+import { IUserDocument, User } from "../models/user";
 
 class UserDAO {
-  async create(username: string, email: string, password: string) {
-    const user = new User({
-      _id: new mongoose.Types.ObjectId,
-      username,
-      email,
-      password,
-      friendIds: []
-    });
-
+  async create(user: IUserDocument) {
     await user.save();
   }
 
