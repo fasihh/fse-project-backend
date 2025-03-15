@@ -30,6 +30,11 @@ beforeAll(async () => {
   await connect();
 });
 
+afterAll(async () => {
+  for (const user of test_users)
+    await User.deleteOne({ username: user.username });
+});
+
 describe('Create and login test_users', () => {
   for (const user of test_users) {
     test(`Create user "${user.username}": expected response <201>`, async () => {
