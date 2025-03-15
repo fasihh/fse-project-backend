@@ -11,7 +11,7 @@ class UserService {
   async createUser(username: string, email: string, password: string, admin_key: string) {
     const user = await UserDAO.findByUsername(username);
     if (!!user)
-      throw new RequestError(ExceptionType.USER_EXISTS);
+      throw new RequestError(ExceptionType.ALREADY_EXISTS);
 
     const new_user = new User({
       _id: new mongoose.Types.ObjectId,

@@ -6,7 +6,7 @@ import { connect } from '../config/db';
 import dotenv from 'dotenv';
 dotenv.config();
 
-const users: Omit<IUser, 'role' | 'friendIds'>[] = [
+export const test_users: Omit<IUser, 'role' | 'friendIds'>[] = [
   {
     username: 'test1',
     email: 'test1@mail.com',
@@ -19,17 +19,19 @@ const users: Omit<IUser, 'role' | 'friendIds'>[] = [
   },
 ];
 
+export const login = async (credentials: { email?: string, username?: string, password?: string }) => {
+  const response = await request(app)
+    .post('/user/login')
+    .send(credentials);
+  return { status: response.status, token: response.body.token };
+}
+
 beforeAll(async () => {
   await connect();
 });
 
-afterAll(async () => {
-  for (const user of users)
-    await User.deleteOne({ username: user.username });
-});
-
-describe('Create and login users', () => {
-  for (const user of users) {
+describe('Create and login test_users', () => {
+  for (const user of test_users) {
     test(`Create user "${user.username}": expected response <201>`, async () => {
       const response = await request(app)
         .post('/user/register')
@@ -38,22 +40,20 @@ describe('Create and login users', () => {
     });
   
     test(`Login user "${user.username}": expected response <200>`, async () => {
-      const response = await request(app)
-        .post('/user/login')
-        .send({ username: user.username, password: user.password });
-      expect(response.status).toBe(200);
+      const { status, token } = await login({ username: user.username, password: user.password });
+      expect(status).toBe(200);
     });
   }
 });
 
-describe('Fetch all users', () => {
-  test(`Fetch users: expected response <200>`, async () => {
+describe('Fetch all test_users', () => {
+  test(`Fetch test_users: expected response <200>`, async () => {
     const response = await request(app)
       .get('/user')
     expect(response.status).toBe(200);
     
     // might need to implement a get by id feature too
-    const test_users = new Set(users.map(user => user.username));
-    console.log(response.body.data.filter((item: any) => test_users.has(item.username)));
+    const test_test_users = new Set(test_users.map(user => user.username));
+    console.log(response.body.data.filter((item: any) => test_test_users.has(item.username)));
   });
 });
