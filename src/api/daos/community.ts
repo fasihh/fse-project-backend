@@ -1,5 +1,5 @@
 import mongoose from 'mongoose';
-import { Community } from '../models/community';
+import { Community, ICommunity, type ICommunityDocument } from '../models/community';
 
 class CommunityDAO {
   async find() {
@@ -10,18 +10,16 @@ class CommunityDAO {
     return await Community.findOne({ _id: id });
   }
 
-  async create(title: string, description?: string) {
-    const community = new Community({
-      _id: new mongoose.Types.ObjectId,
-      title,
-      description
-    });
-
+  async create(community: ICommunityDocument) {
     await community.save();
   }
 
-  async updateById(id: string) {
-    
+  async updateById(id: string, community: Partial<ICommunity>) {
+    await Community.updateOne({ _id: id }, { $set: community });
+  }
+
+  async deleteById(id: string) {
+    await Community.deleteOne({ _id: id });
   }
 };
 

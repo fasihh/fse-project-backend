@@ -39,8 +39,12 @@ class CommunityController {
 
   async updateById(req: Request, res: Response) {
     const id = req.params.id;
+    const title = req.body.title;
+    const description = req.body.description;
+    const postIds = req.body.postIds;
+    const moderatorIds = req.body.moderatorIds;
 
-    await CommunityService.updateById(id);
+    await CommunityService.updateById(id, { title, description, postIds, moderatorIds });
 
     res.status(200).json({
       success: true,
@@ -49,7 +53,14 @@ class CommunityController {
   }
 
   async deleteById(req: Request, res: Response) {
+    const id = req.params.id;
 
+    await CommunityService.deleteById(id);
+
+    res.status(200).json({
+      success: true,
+      message: 'Community deleted successfully.'
+    });
   }
 };
 
