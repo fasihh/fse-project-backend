@@ -24,22 +24,22 @@ class PostController {
     }
 
     async create(req: Request, res: Response) {
-        const communityId = req.params.communityId
-        const title = req.body.title
-        const content = req.body.content
-        const creatorId = req.user.userId
+        const communityId = req.params.communityId;
+        const title = req.body.title;
+        const content = req.body.content;
+        const creatorId = req.user.userId;
 
         if (!title || !content)
             throw new RequestError(ExceptionType.INVALID_REQUEST);
 
         const fileData = req.files?.map(file => ({
-            asset_id: file.asset_id,
-            public_id: file.public_id,
-            url: file.url,
+            asset_id: file.filename,
+            public_id: file.path.split('/').pop() || '',
+            url: file.path,
             secure_url: file.secure_url,
-            format: file.format,
-            resource_type: file.resource_type,
-            bytes: file.bytes,
+            format: file.mimetype.split('/')[1],
+            resource_type: file.mimetype.split('/')[0],
+            bytes: file.size,
             original_filename: file.originalname
         })) || [];
 
