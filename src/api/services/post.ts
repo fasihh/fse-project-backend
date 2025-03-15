@@ -1,7 +1,11 @@
 import mongoose from 'mongoose';
+import CommunityDAO from '../daos/community'
 import PostDAO from '../daos/post'
-import { Post } from '../models/post';
+import { IPost, Post } from '../models/post';
 import { PostFile } from '../types/global';
+import { ICommunityDocument } from '../models/community';
+import RequestError from '../errors/request-error';
+import { ExceptionType } from '../errors/exceptions';
 
 
 class PostService {
@@ -14,13 +18,31 @@ class PostService {
     }
 
     async create(communityId: string, title: string, content: string, creatorId: string, files?: PostFile[]) {
+        const community: ICommunityDocument | null = await CommunityDAO.findById(communityId);
+
+        if (!community)
+            throw new RequestError(ExceptionType.NOT_FOUND)
+
         const post = new Post({
             _id: new mongoose.Types.ObjectId,
+            communityId: communityId,
             title: title,
             content: content,
-            files: files,
+            files: files || [],
             creatorId: creatorId,
         })
+
+        await community.addPost(post._id as mongoose.Types.ObjectId)
+
+        await PostDAO.create(post)
+    }
+
+    async updateById(id: string, post: Partial<IPost>) {
+        await PostDAO.updateById(id, post);
+    }
+
+    async deleteById(id: string) {
+        await PostDAO.deleteById(id);
     }
 }
 

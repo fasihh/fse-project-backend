@@ -8,7 +8,7 @@ export interface ICommunity {
 };
 
 export interface ICommunityDocument extends ICommunity, Document {
-  addPost(postId: mongoose.Schema.Types.ObjectId): Promise<void>;
+  addPost(postId: mongoose.Types.ObjectId): Promise<void>;
 };
 
 const communitySchema = new mongoose.Schema<ICommunityDocument>({
@@ -35,8 +35,9 @@ const communitySchema = new mongoose.Schema<ICommunityDocument>({
   timestamps: true
 });
 
-communitySchema.methods.addPost = async function(postId: mongoose.Schema.Types.ObjectId) {
+communitySchema.methods.addPost = async function(postId: mongoose.Types.ObjectId) {
   this.postIds.push(postId);
+  await this.save();
 }
 
 export const Community = mongoose.model('Community', communitySchema);
