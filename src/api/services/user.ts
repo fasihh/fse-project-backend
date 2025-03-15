@@ -8,7 +8,7 @@ import mongoose from "mongoose";
 dotenv.config();
 
 class UserService {
-  async createUser(username: string, email: string, password: string) {
+  async createUser(username: string, email: string, password: string, admin_key: string) {
     const user = await UserDAO.findByUsername(username);
     if (!!user)
       throw new RequestError(ExceptionType.USER_EXISTS);
@@ -18,6 +18,7 @@ class UserService {
       username,
       email,
       password,
+      role: process.env.ADMIN_KEY === admin_key ? 'Admin' : 'Member',
       friendIds: []
     });
     

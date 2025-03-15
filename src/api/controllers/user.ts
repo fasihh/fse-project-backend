@@ -16,11 +16,15 @@ class UserController {
     const username = req.body.username;
     const email = req.body.email;
     const password = req.body.password;
+    const admin_key = req.body.code;
 
     if (!username || !email || !password)
       throw new RequestError(ExceptionType.INVALID_REQUEST);
 
-    await UserService.createUser(username, email, password);
+    if (admin_key && admin_key !== process.env.ADMIN_KEY)
+      throw new RequestError(ExceptionType.UNAUTHORIZED, "Invalid code.");
+
+    await UserService.createUser(username, email, password, admin_key);
     
     res.status(201).json({
       success: true,

@@ -1,8 +1,11 @@
 import { NextFunction, Request, Response } from 'express';
 import asyncHandler from '../utils/async-handler';
 import jwt, { JwtPayload } from 'jsonwebtoken';
+import UserDAO from '../daos/user';
 import RequestError from '../errors/request-error';
 import { ExceptionType } from '../errors/exceptions';
+import { IUser } from '../models/user';
+import { UserPayload } from '../types/express';
 
 const authHandler = asyncHandler(async (req: Request, res: Response, next: NextFunction) => {
   const authHeader = req.headers.authorization;
@@ -12,12 +15,13 @@ const authHandler = asyncHandler(async (req: Request, res: Response, next: NextF
   const token = authHeader.replace('Bearer ', '');
 
   try {
-    const decoded: JwtPayload = jwt.verify(
+    const decoded = jwt.verify(
       token,
       process.env.JWT_KEY || 'secret-key'
-    ) as JwtPayload;
+    ) as UserPayload;
 
-    req.user = decoded;
+    const user = await UserDAO.findByUsername(decoded.username);
+    req.user = { role: user!.role, ...decoded };
     next();
   } catch (error: unknown) {
     throw new RequestError(ExceptionType.AUTH_FAILURE);

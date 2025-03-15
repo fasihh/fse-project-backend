@@ -5,6 +5,7 @@ export interface IUser {
   username: string;
   email: string;
   password: string;
+  role: 'Admin' | 'Member';
   friendIds: mongoose.Schema.Types.ObjectId[];
 };
 
@@ -28,6 +29,12 @@ const userSchema = new mongoose.Schema<IUserDocument>({
   password: {
     type: String,
     required: true
+  },
+  role: {
+    type: String,
+    enum: ['Admin', 'Member'],
+    default: 'Member',
+    required: true,
   },
   friendIds: {
     type: [{ type: mongoose.Schema.ObjectId, ref: 'User' }],
