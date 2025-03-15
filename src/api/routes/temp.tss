@@ -1,0 +1,69 @@
+import express from 'express';
+import { upload } from '../middleware/upload';
+import { Post } from '../models/post';
+
+const router = express.Router();
+
+router.post('/posts', upload.array('files', 5), async (req, res) => {
+    try {
+        if (!req.files || req.files.length === 0) {
+            return res.status(400).json({ message: 'No files uploaded' });
+        }
+
+        // Cloudinary adds its response data to the file object
+        const files = (req.files as Express.Multer.File[]).map(file => ({
+            asset_id: (file as any).asset_id,
+            public_id: (file as any).public_id,
+            url: (file as any).url,
+            secure_url: (file as any).secure_url,
+            format: (file as any).format,
+            resource_type: (file as any).resource_type,
+            bytes: (file as any).bytes,
+            original_filename: file.originalname
+        }));
+
+        const post = new Post({
+            ...req.body,
+            files: files,
+            // Make sure to include other required fields
+        });
+
+        await post.save();
+        res.status(201).json(post);
+
+    } catch (error) {
+        if (error instanceof Error) {
+            res.status(400).json({ message: error.message });
+        } else {
+            res.status(500).json({ message: 'Internal server error' });
+        }
+    }
+});
+
+// Add a delete route to clean up files when deleting a post
+router.delete('/posts/:id', async (req, res) => {
+    try {
+        const post = await Post.findById(req.params.id);
+        if (!post) {
+            return res.status(404).json({ message: 'Post not found' });
+        }
+
+        // Delete files from Cloudinary
+        for (const file of post.files) {
+            await cloudinary.uploader.destroy(file.public_id);
+        }
+
+        // Delete post from database
+        await post.deleteOne();
+        res.json({ message: 'Post deleted successfully' });
+
+    } catch (error) {
+        if (error instanceof Error) {
+            res.status(400).json({ message: error.message });
+        } else {
+            res.status(500).json({ message: 'Internal server error' });
+        }
+    }
+});
+
+export default router;
