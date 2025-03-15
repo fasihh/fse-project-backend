@@ -4,7 +4,7 @@ import RequestError from '../errors/request-error';
 import { ExceptionType } from '../errors/exceptions';
 
 class CommunityController {
-  async getAll(req: Request, res: Response) {
+  async getAll(_req: Request, res: Response) {
     res.status(200).json({
       success: true,
       message: 'Communities fetched successfully.',
@@ -23,6 +23,9 @@ class CommunityController {
   }
 
   async create(req: Request, res: Response) {
+    if (req.user.role !== 'Admin')
+      throw new RequestError(ExceptionType.UNAUTHORIZED);
+
     const title = req.body.title;
     const description = req.body.description;
 
@@ -38,6 +41,9 @@ class CommunityController {
   }
 
   async updateById(req: Request, res: Response) {
+    if (req.user.role !== 'Admin')
+      throw new RequestError(ExceptionType.UNAUTHORIZED);
+
     const id = req.params.id;
     const title = req.body.title;
     const description = req.body.description;
@@ -53,6 +59,9 @@ class CommunityController {
   }
 
   async deleteById(req: Request, res: Response) {
+    if (req.user.role !== 'Admin')
+      throw new RequestError(ExceptionType.UNAUTHORIZED);
+
     const id = req.params.id;
 
     await CommunityService.deleteById(id);
