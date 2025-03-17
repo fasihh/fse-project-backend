@@ -17,6 +17,10 @@ class UserDAO {
   async findByEmail(email: string) {
     return await User.findOne({ email });
   }
+
+  async findById(id: string) {
+    return await User.findOne({ _id: id });
+  }
 };
 
 export default new UserDAO;

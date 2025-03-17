@@ -9,12 +9,15 @@ export interface IUser {
   friendIds: mongoose.Schema.Types.ObjectId[];
   joinedCommunityIds: mongoose.Schema.Types.ObjectId[];
   postIds: mongoose.Schema.Types.ObjectId[];
+  commentIds: mongoose.Schema.Types.ObjectId[];
 };
 
 export interface IUserDocument extends IUser, Document {
   comparePassword(incomingPassword: string): Promise<boolean>;
   addPost(postId: mongoose.Types.ObjectId): Promise<void>;
   deletePost(postId: mongoose.Types.ObjectId): Promise<void>;
+  addComment(commentId: mongoose.Types.ObjectId): Promise<void>;
+  deleteComment(commentId: mongoose.Types.ObjectId): Promise<void>;
 };
 
 const userSchema = new mongoose.Schema<IUserDocument>({
@@ -51,6 +54,10 @@ const userSchema = new mongoose.Schema<IUserDocument>({
   postIds: {
     type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Post'}],
     default: [],
+  },
+  commentIds: {
+    type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Comment'}],
+    default: [],
   }
 }, {
   versionKey: false,
@@ -86,6 +93,16 @@ userSchema.methods.addPost = async function(postId: mongoose.Types.ObjectId) {
 userSchema.methods.deletePost = async function(postId: mongoose.Types.ObjectId) {
   this.postIds.pull(postId);
   await this.save();
+}
+
+userSchema.methods.addComment = async function(commentId: mongoose.Types.ObjectId) {
+    this.commentIds.push(commentId);
+    await this.save();
+}
+
+userSchema.methods.deleteComment = async function(commentId: mongoose.Types.ObjectId) {
+    this.commentIds.pull(commentId);
+    await this.save();
 }
 
 export const User = mongoose.model('User', userSchema);

@@ -4,7 +4,7 @@ import { PostFile } from "../types/global";
 
 export interface IPost {
     communityId: mongoose.Schema.Types.ObjectId;
-    commentsId: mongoose.Schema.Types.ObjectId[];
+    commentIds: mongoose.Schema.Types.ObjectId[];
     title: string;
     content: string;
     files: PostFile[];
@@ -13,15 +13,16 @@ export interface IPost {
 }
 
 export interface IPostDocument extends IPost, Document {
-
+    addComment(commentId: mongoose.Types.ObjectId): Promise<void>;
+    deleteComment(commentId: mongoose.Types.ObjectId): Promise<void>;
 };
 
-const PostSchema = new mongoose.Schema<IPostDocument>({
+const postSchema = new mongoose.Schema<IPostDocument>({
     communityId: {
         type: mongoose.Schema.ObjectId,
         ref: 'Community',
     },
-    commentsId: {
+    commentIds: {
         type: [{ type: mongoose.Schema.ObjectId, ref: 'Comment' }],
         default: [],
     },
@@ -49,7 +50,17 @@ const PostSchema = new mongoose.Schema<IPostDocument>({
 }, {
     versionKey: false,
     timestamps: true,
-}
-)
+});
 
-export const Post = mongoose.model('Post', PostSchema);
+postSchema.methods.addComment = async function(commentId: mongoose.Types.ObjectId) {
+    this.commentIds.push(commentId);
+    await this.save();
+}
+
+postSchema.methods.deleteComment = async function(commentId: mongoose.Types.ObjectId) {
+    this.commentIds.pull(commentId);
+    await this.save();
+}
+
+
+export const Post = mongoose.model('Post', postSchema);
