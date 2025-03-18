@@ -29,8 +29,11 @@ class PostController {
         const communityId = req.params.communityId;
         const title = req.body.title;
         const content = req.body.content;
-        const creatorId = req.user.userId;
-        const username = req.user.username
+        const creatorId = req.user?.userId;
+        const username = req.user?.username
+
+        if (!username || ! creatorId)
+            throw new RequestError(ExceptionType.UNAUTHORIZED);
         
         if (!title || !content)
             throw new RequestError(ExceptionType.INVALID_REQUEST);
@@ -107,7 +110,6 @@ class PostController {
 
     async deleteById(req: Request, res: Response) {
         const id = req.params.id;
-        const username = req.user.username
         const post = await PostService.findById(id);
 
         if (!post)
@@ -119,7 +121,7 @@ class PostController {
         for (const file of post.files)
             await deleteFileFromCloudinary(file.public_id);
 
-        await PostService.deleteById(username, id);
+        await PostService.deleteById(id);
 
         res.status(200).json({
             success: true,

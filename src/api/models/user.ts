@@ -10,7 +10,6 @@ export interface IUser {
   joinedCommunityIds: mongoose.Schema.Types.ObjectId[];
   postIds: mongoose.Schema.Types.ObjectId[];
   commentIds: mongoose.Schema.Types.ObjectId[];
-  joinedCommunityIds: mongoose.Schema.Types.ObjectId[];
 };
 
 export interface IUserDocument extends IUser, Document {

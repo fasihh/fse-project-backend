@@ -34,8 +34,11 @@ class CommentController {
 
     async create(req: Request, res: Response) {
         const postId = req.params.id;
-        const userId = req.user.userId;
+        const userId = req.user?.userId;
         const content = req.body.content;
+
+        if (!userId)
+            throw new RequestError(ExceptionType.UNAUTHORIZED);
 
         if (!content)
             throw new RequestError(ExceptionType.INVALID_REQUEST);
@@ -67,7 +70,10 @@ class CommentController {
 
     async deleteById(req: Request, res: Response) {
         const id = req.params.id;
-        const username = req.user.username
+        const username = req.user?.username
+
+        if (!username)
+            throw new RequestError(ExceptionType.UNAUTHORIZED);
 
         await CommentService.deleteById(username, id);
 

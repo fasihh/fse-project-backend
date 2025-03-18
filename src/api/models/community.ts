@@ -51,6 +51,9 @@ communitySchema.methods.addPost = async function(postId: mongoose.Types.ObjectId
 
 communitySchema.methods.deletePost = async function(postId: mongoose.Types.ObjectId) {
   this.postIds.pull(postId);
+  await this.save();
+}
+
 communitySchema.methods.addMember = async function(userId: mongoose.Types.ObjectId) {
   if (this.memberIds.includes(userId))
     return;
