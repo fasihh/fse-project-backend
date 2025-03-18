@@ -10,6 +10,7 @@ export interface IUser {
   joinedCommunityIds: mongoose.Schema.Types.ObjectId[];
   postIds: mongoose.Schema.Types.ObjectId[];
   commentIds: mongoose.Schema.Types.ObjectId[];
+  joinedCommunityIds: mongoose.Schema.Types.ObjectId[];
 };
 
 export interface IUserDocument extends IUser, Document {
@@ -45,19 +46,7 @@ const userSchema = new mongoose.Schema<IUserDocument>({
   },
   friendIds: {
     type: [{ type: mongoose.Schema.ObjectId, ref: 'User' }],
-    default: [],
-  },
-  joinedCommunityIds: {
-    type: [{ type: mongoose.Schema.ObjectId, ref: 'Community' }],
-    default: [],
-  },
-  postIds: {
-    type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Post'}],
-    default: [],
-  },
-  commentIds: {
-    type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Comment'}],
-    default: [],
+    default: []
   }
 }, {
   versionKey: false,

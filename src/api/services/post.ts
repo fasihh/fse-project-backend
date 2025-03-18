@@ -16,7 +16,10 @@ class PostService {
     }
 
     async findById(id: string) {
-        return await PostDAO.findById(id);
+        const res = await PostDAO.findById(id);
+        if (!res)
+            throw new RequestError(ExceptionType.NOT_FOUND);
+        return res;
     }
 
     async create(username: string, communityId: string, title: string, content: string, creatorId: string, files?: PostFile[]) {
@@ -24,9 +27,12 @@ class PostService {
         if (!user)
             throw new RequestError(ExceptionType.NOT_FOUND)
 
-        const community: ICommunityDocument | null = await CommunityDAO.findById(communityId);
+        const community = await CommunityDAO.findById(communityId);
         if (!community)
-            throw new RequestError(ExceptionType.NOT_FOUND)
+            throw new RequestError(ExceptionType.NOT_FOUND);
+
+        if (!community.memberIds.some(memberId => memberId.toString() === creatorId))
+            throw new RequestError(ExceptionType.UNAUTHORIZED);
 
         const post = new Post({
             _id: new mongoose.Types.ObjectId,
@@ -35,35 +41,21 @@ class PostService {
             content: content,
             files: files || [],
             creatorId: creatorId,
-        })
+        });
 
-        await community.addPost(post._id as mongoose.Types.ObjectId)
+        await community.addPost(post._id as mongoose.Types.ObjectId);
 
         await PostDAO.create(post)
-
-        await user.addPost(post._id as mongoose.Types.ObjectId)
     }
 
-    async updateById(id: string, post: Partial<IPost>) {
-        await PostDAO.updateById(id, post);
+    async updatePost(postId: string, post: Partial<IPost>) {
+        const res = await PostDAO.updateById(postId, post);
+        if (res.modifiedCount === 0)
+            throw new RequestError(ExceptionType.NOT_FOUND);
     }
 
-    async deleteById(username: string, id: string) {
-        const user: IUserDocument | null = await UserDAO.findByUsername(username)
-        if (!user)
-            throw new RequestError(ExceptionType.NOT_FOUND)
-
-        const post = await PostDAO.findById(id);
-        if (!post) throw new RequestError(ExceptionType.NOT_FOUND);
-
-        const community = await CommunityDAO.findById(post.communityId.toString());
-        if (!community) throw new RequestError(ExceptionType.NOT_FOUND);
-
-        await community.deletePost(new mongoose.Types.ObjectId(id));
-
+    async deleteById(id: string) {
         await PostDAO.deleteById(id);
-        
-        await user.deletePost(new mongoose.Types.ObjectId(id))
     }
 }
 

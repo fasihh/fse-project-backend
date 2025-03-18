@@ -10,15 +10,15 @@ class PostDAO {
     }
 
     async create(post: IPostDocument) {
-        await post.save();
+        return await post.save();
     }
 
     async updateById(id: string, post: Partial<IPost>) {
-        await Post.updateOne({ _id: id }, { $set: post });
+        return await Post.updateOne({ _id: id }, { $set: post });
     }
 
     async deleteById(id: string) {
-        await Post.deleteOne({ _id: id });
+        return await Post.deleteOne({ _id: id });
     }
 }
 

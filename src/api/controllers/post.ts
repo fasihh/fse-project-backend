@@ -3,6 +3,8 @@ import PostService from '../services/post'
 import RequestError from "../errors/request-error";
 import { ExceptionType } from "../errors/exceptions";
 import { deleteFileFromCloudinary } from "../utils/cloudinary";
+import CommunityService from "../services/community";
+import mongoose from "mongoose";
 
 class PostController {
     async getAll(_req: Request, res: Response) {
@@ -59,7 +61,15 @@ class PostController {
         if (!post)
             throw new RequestError(ExceptionType.NOT_FOUND);
 
-        if (post.creatorId.toString() !== req.user.id)
+        if (post.creatorId.toString() !== req.user!.userId)
+            throw new RequestError(ExceptionType.UNAUTHORIZED);
+
+        /* TODO: in case a community is deleted, remove all posts under it */
+        const community = await CommunityService.findById(post.communityId.toString());
+        if (!community)
+            throw new RequestError(ExceptionType.NOT_FOUND);
+
+        if (!community.memberIds.some(memberId => memberId.toString() === req.user!.userId))
             throw new RequestError(ExceptionType.UNAUTHORIZED);
 
         const fileData = req.files?.map(file => ({
@@ -87,7 +97,7 @@ class PostController {
             files: fileData.length > 0 ? fileData : post.files
         };
 
-        await PostService.updateById(id, updateData);
+        await PostService.updatePost(id, updateData);
 
         res.status(200).json({
             success: true,
@@ -100,17 +110,14 @@ class PostController {
         const username = req.user.username
         const post = await PostService.findById(id);
 
-        if (!post) {
+        if (!post)
             throw new RequestError(ExceptionType.NOT_FOUND);
-        }
 
-        if (post.creatorId.toString() !== req.user.userId) {
+        if (post.creatorId.toString() !== req.user!.userId)
             throw new RequestError(ExceptionType.UNAUTHORIZED);
-        }
 
-        for (const file of post.files) {
+        for (const file of post.files)
             await deleteFileFromCloudinary(file.public_id);
-        }
 
         await PostService.deleteById(username, id);
 

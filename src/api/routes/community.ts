@@ -10,6 +10,7 @@ router
   .get('/', asyncHandler(CommunityController.getAll))
   .get('/:id', asyncHandler(CommunityController.getById))
   .post('/create', authHandler, asyncHandler(CommunityController.create))
+  .post('/join/:id', authHandler, asyncHandler(CommunityController.join))
   .patch('/:id', authHandler, asyncHandler(CommunityController.updateById))
   .delete('/:id', authHandler, asyncHandler(CommunityController.deleteById));
 
