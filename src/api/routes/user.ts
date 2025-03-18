@@ -7,6 +7,7 @@ const router = Router();
 
 router
   .get('/', asyncHandler(UserController.getAll))
+  .get('/verify/:token', asyncHandler(UserController.verifyEmail))
   .post('/register', asyncHandler(UserController.register))
   .post('/login', asyncHandler(UserController.login));
 

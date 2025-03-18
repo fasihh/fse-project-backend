@@ -12,6 +12,17 @@ class UserController {
     });
   }
 
+  async verifyEmail(req: Request, res: Response) {
+    const { token} = req.params;
+
+    await UserService.verifyEmail(token);
+
+    res.status(200).json({
+      success: true,
+      message: "Email verified successfully."
+    });
+  }
+
   async register(req: Request, res: Response) {
     const username = req.body.username;
     const email = req.body.email;

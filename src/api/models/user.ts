@@ -10,6 +10,8 @@ export interface IUser {
   joinedCommunityIds: mongoose.Schema.Types.ObjectId[];
   postIds: mongoose.Schema.Types.ObjectId[];
   commentIds: mongoose.Schema.Types.ObjectId[];
+  isVerified: boolean;
+  verificationCode: string | null;
 };
 
 export interface IUserDocument extends IUser, Document {
@@ -46,6 +48,14 @@ const userSchema = new mongoose.Schema<IUserDocument>({
   friendIds: {
     type: [{ type: mongoose.Schema.ObjectId, ref: 'User' }],
     default: []
+  },
+  isVerified: {
+    type: Boolean,
+    default: false,
+  },
+  verificationCode: {
+    type: String,
+    default: null,
   }
 }, {
   versionKey: false,

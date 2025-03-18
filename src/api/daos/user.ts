@@ -21,6 +21,10 @@ class UserDAO {
   async findById(id: string) {
     return await User.findOne({ _id: id });
   }
+
+  async findByVerificationCode(code: string) {
+    return await User.findOne({ verificationCode: code });
+  }
 };
 
 export default new UserDAO;

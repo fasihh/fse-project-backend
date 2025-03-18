@@ -5,6 +5,8 @@ import { ExceptionType } from "../errors/exceptions";
 import RequestError from "../errors/request-error";
 import dotenv from 'dotenv';
 import mongoose from "mongoose";
+import crypto from 'crypto';
+import { sendVerificationEmail } from "../utils/email";
 dotenv.config();
 
 class UserService {
@@ -13,16 +15,21 @@ class UserService {
     if (!!user)
       throw new RequestError(ExceptionType.ALREADY_EXISTS);
 
+    const verificationToken = crypto.randomBytes(32).toString('hex');
+
     const new_user = new User({
       _id: new mongoose.Types.ObjectId,
       username,
       email,
       password,
       role: process.env.ADMIN_KEY === admin_key ? 'Admin' : 'Member',
-      friendIds: []
+      friendIds: [],
+      isVerified: false,
+      verificationCode: verificationToken
     });
     
     await UserDAO.create(new_user);
+    await sendVerificationEmail(email, verificationToken);
   }
 
   async findAll() {
@@ -41,6 +48,9 @@ class UserService {
     if (!user)
       throw new RequestError(ExceptionType.AUTH_FAILURE);
 
+    if (!user.isVerified)
+      throw new RequestError(ExceptionType.UNAUTHORIZED, "Please verify your email before logging in.");
+
     const status = await user.comparePassword(password);
     if (!status)
       throw new RequestError(ExceptionType.AUTH_FAILURE);
@@ -56,6 +66,18 @@ class UserService {
     );
 
     return token;
+  }
+
+  async verifyEmail(token: string) {
+    const user = await UserDAO.findByVerificationCode(token);
+    
+    if (!user)
+      throw new RequestError(ExceptionType.NOT_FOUND);
+
+    user.isVerified = true;
+    user.verificationCode = null;   
+    
+    await user.save();
   }
 };
 
