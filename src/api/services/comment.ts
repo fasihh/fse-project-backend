@@ -17,6 +17,10 @@ class CommentService {
         return await CommentDAO.findById(id);
     }
 
+    async findByPostId(postId: string) {
+        return await CommentDAO.findByPostId(postId);
+    }
+
     async create(postId: string, creatorId: string, content: string) {
         const user: IUserDocument | null = await UserDAO.findById(creatorId);
         if (!user)
@@ -43,13 +47,12 @@ class CommentService {
     }
 
     async deleteById(username: string, id: string) {
-        const user: IUserDocument | null = await UserDAO.findByUsername(username)
+        const user: IUserDocument | null = await UserDAO.findByUsername(username);
         if (!user)
-            throw new RequestError(ExceptionType.NOT_FOUND)
+            throw new RequestError(ExceptionType.NOT_FOUND);
 
         const post = await PostDAO.findById(id);
         if (!post) throw new RequestError(ExceptionType.NOT_FOUND);
-
 
         await CommentDAO.deleteById(id);
         await post.deleteComment(new mongoose.Types.ObjectId(id))      

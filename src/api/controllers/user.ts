@@ -21,6 +21,9 @@ class UserController {
     if (!username || !email || !password)
       throw new RequestError(ExceptionType.INVALID_REQUEST);
 
+    console.log(admin_key)
+    console.log(process.env.ADMIN_KEY)
+
     if (admin_key && admin_key !== process.env.ADMIN_KEY)
       throw new RequestError(ExceptionType.UNAUTHORIZED, "Invalid code.");
 

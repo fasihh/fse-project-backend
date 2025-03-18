@@ -1,0 +1,81 @@
+import { Request, Response } from "express";
+import CommentService from "../services/comment";
+import RequestError from "../errors/request-error";
+import { ExceptionType } from "../errors/exceptions";
+
+class CommentController {
+    async getAll(_req: Request, res: Response) {
+        res.status(200).json({
+            success: true,
+            message: "Fetched posts successfully.",
+            comment: await CommentService.findAll(),
+        });
+    }
+
+    async getById(req: Request, res: Response) {
+        const id = req.params.id;
+
+        res.status(200).json({
+            success: true,
+            message: "Post fetched successfully.",
+            comment: await CommentService.findById(id),
+        })
+    }
+
+    async getByPostId(req: Request, res: Response) {
+        const id = req.params.id;
+
+        res.status(200).json({
+            success: true,
+            message: "Post fetched successfully.",
+            comment: await CommentService.findByPostId(id),
+        })
+    }
+
+    async create(req: Request, res: Response) {
+        const postId = req.params.id;
+        const userId = req.user.userId;
+        const content = req.body.content;
+
+        if (!content)
+            throw new RequestError(ExceptionType.INVALID_REQUEST);
+
+        await CommentService.create(postId, userId, content);
+
+        res.status(201).json({
+            success: true,
+            message: "Comment created successfully.",
+        });
+    }
+
+    async updateById(req: Request, res: Response) {
+        const id = req.params.id;
+
+        const updateData = {
+            content: req.body.content,
+            likes: req.body.likes,
+            replyIds: req.body.replyIds,
+        };
+        
+        await CommentService.updateById(id, updateData);
+
+        res.status(200).json({
+            success: true,
+            message: 'Comment updated successfully.'
+        });
+    }
+
+    async deleteById(req: Request, res: Response) {
+        const id = req.params.id;
+        const username = req.user.username
+
+        await CommentService.deleteById(username, id);
+
+        res.status(200).json({
+            success: true,
+            message: 'Post deleted successfully.'
+        });
+    }
+}
+
+export default new CommentController;

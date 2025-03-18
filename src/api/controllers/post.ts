@@ -3,7 +3,6 @@ import PostService from '../services/post'
 import RequestError from "../errors/request-error";
 import { ExceptionType } from "../errors/exceptions";
 import { deleteFileFromCloudinary } from "../utils/cloudinary";
-import { IUserDocument } from "../models/user";
 
 class PostController {
     async getAll(_req: Request, res: Response) {
