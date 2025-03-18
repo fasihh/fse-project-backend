@@ -11,6 +11,6 @@ router
     .get('/post/:id', asyncHandler(CommentController.getByPostId))
     .post('/create/:id', authHandler, asyncHandler(CommentController.create))
     .patch('/:id', authHandler, asyncHandler(CommentController.updateById))
-    .delete('/:id', authHandler, asyncHandler(CommentController.deleteById))
+    .delete('/:postId/:id', authHandler, asyncHandler(CommentController.deleteById))
 
 export default router;

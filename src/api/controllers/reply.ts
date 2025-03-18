@@ -1,14 +1,14 @@
 import { Request, Response } from "express";
-import CommentService from "../services/comment";
+import ReplyService from "../services/reply";
 import RequestError from "../errors/request-error";
 import { ExceptionType } from "../errors/exceptions";
 
-class CommentController {
+class ReplyController {
     async getAll(_req: Request, res: Response) {
         res.status(200).json({
             success: true,
-            message: "Fetched comments successfully.",
-            comment: await CommentService.findAll(),
+            message: "Fetched reply successfully.",
+            reply: await ReplyService.findAll(),
         });
     }
 
@@ -17,23 +17,24 @@ class CommentController {
 
         res.status(200).json({
             success: true,
-            message: "Comment fetched successfully.",
-            comment: await CommentService.findById(id),
+            message: "Reply fetched successfully.",
+            reply: await ReplyService.findById(id),
         })
     }
 
-    async getByPostId(req: Request, res: Response) {
+    async getByCommentId(req: Request, res: Response) {
         const id = req.params.id;
 
         res.status(200).json({
             success: true,
-            message: "Comment fetched successfully.",
-            comment: await CommentService.findByPostId(id),
+            message: "Reply fetched successfully.",
+            reply: await ReplyService.findByCommentId(id),
         })
     }
 
     async create(req: Request, res: Response) {
         const postId = req.params.id;
+        const commentId = req.params.commentId;
         const userId = req.user?.userId;
         const content = req.body.content;
 
@@ -43,11 +44,11 @@ class CommentController {
         if (!content)
             throw new RequestError(ExceptionType.INVALID_REQUEST);
 
-        await CommentService.create(postId, userId, content);
+        await ReplyService.create(postId, userId, content, commentId);
 
         res.status(201).json({
             success: true,
-            message: "Comment created successfully.",
+            message: "Reply created successfully.",
         });
     }
 
@@ -57,32 +58,31 @@ class CommentController {
         const updateData = {
             content: req.body.content,
             likes: req.body.likes,
-            replyIds: req.body.replyIds,
         };
         
-        await CommentService.updateById(id, updateData);
+        await ReplyService.updateById(id, updateData);
 
         res.status(200).json({
             success: true,
-            message: 'Comment updated successfully.'
+            message: 'Reply updated successfully.'
         });
     }
 
     async deleteById(req: Request, res: Response) {
         const id = req.params.id;
-        const postId = req.params.postId;
+        const commentId = req.params.commentId;
         const username = req.user?.username
 
         if (!username)
             throw new RequestError(ExceptionType.UNAUTHORIZED);
 
-        await CommentService.deleteById(username, id, postId);
+        await ReplyService.deleteById(username, id, commentId);
 
         res.status(200).json({
             success: true,
-            message: 'Comment deleted successfully.'
+            message: 'Reply deleted successfully.'
         });
     }
 }
 
-export default new CommentController;
+export default new ReplyController;

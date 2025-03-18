@@ -43,15 +43,15 @@ class CommentService {
     }
 
     async updateById(id: string, comment: Partial<IComment>) {
-        await PostDAO.updateById(id, comment);
+        await CommentDAO.updateById(id, comment);
     }
 
-    async deleteById(username: string, id: string) {
+    async deleteById(username: string, id: string, postId: string) {
         const user: IUserDocument | null = await UserDAO.findByUsername(username);
         if (!user)
             throw new RequestError(ExceptionType.NOT_FOUND);
 
-        const post = await PostDAO.findById(id);
+        const post = await PostDAO.findById(postId);
         if (!post) throw new RequestError(ExceptionType.NOT_FOUND);
 
         await CommentDAO.deleteById(id);

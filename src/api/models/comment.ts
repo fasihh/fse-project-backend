@@ -10,10 +10,11 @@ export interface IComment {
 }
 
 export interface ICommentDocument extends IComment, Document {
-
+    addReply(replyId: mongoose.Types.ObjectId): Promise<void>;
+    deleteReply(replyId: mongoose.Types.ObjectId): Promise<void>;
 }
 
-const CommentSchema = new mongoose.Schema<ICommentDocument>({
+const commentSchema = new mongoose.Schema<ICommentDocument>({
     postId: {
         type: mongoose.Schema.ObjectId,
         ref: 'Post',
@@ -38,6 +39,16 @@ const CommentSchema = new mongoose.Schema<ICommentDocument>({
 }, {
     versionKey: false,
     timestamps: true,
-})
+});
 
-export const Comment = mongoose.model('Comment', CommentSchema)
+commentSchema.methods.addReply = async function(replyId: mongoose.Types.ObjectId) {
+    this.replyIds.push(replyId);
+    await this.save();
+}
+
+commentSchema.methods.deleteReply = async function(replyId: mongoose.Types.ObjectId) {
+    this.replyIds.pull(replyId);
+    await this.save();
+}
+
+export const Comment = mongoose.model('Comment', commentSchema)
