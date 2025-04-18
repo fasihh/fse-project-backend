@@ -11,7 +11,7 @@ class ReplyDAO {
     }
 
     async findByCommentId(id: string) {
-        return await Reply.findOne({ commentId: id });
+        return await Reply.find({ commentId: id });
     }
 
     async create(reply: IReplyDocument) {

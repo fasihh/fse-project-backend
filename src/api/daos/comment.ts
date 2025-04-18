@@ -10,7 +10,7 @@ class CommentDAO {
     }
 
     async findByPostId(id: string) {
-        return await Comment.findOne({ postId: id });
+        return await Comment.find({ postId: id });
     }
 
     async create(comment: ICommentDocument) {

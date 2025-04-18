@@ -49,6 +49,18 @@ const userSchema = new mongoose.Schema<IUserDocument>({
     type: [{ type: mongoose.Schema.ObjectId, ref: 'User' }],
     default: []
   },
+  joinedCommunityIds: {
+    type: [{ type: mongoose.Schema.ObjectId, ref: 'Community' }],
+    default: []
+  },
+  postIds: {
+    type: [{ type: mongoose.Schema.ObjectId, ref: 'Post' }],
+    default: []
+  },
+  commentIds: {
+    type: [{ type: mongoose.Schema.ObjectId, ref: 'Comment' }],
+    default: []
+  },
   isVerified: {
     type: Boolean,
     default: false,

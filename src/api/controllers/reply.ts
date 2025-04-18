@@ -8,7 +8,7 @@ class ReplyController {
         res.status(200).json({
             success: true,
             message: "Fetched reply successfully.",
-            reply: await ReplyService.findAll(),
+            replies: await ReplyService.findAll(),
         });
     }
 
@@ -28,7 +28,7 @@ class ReplyController {
         res.status(200).json({
             success: true,
             message: "Reply fetched successfully.",
-            reply: await ReplyService.findByCommentId(id),
+            replies: await ReplyService.findByCommentId(id),
         })
     }
 

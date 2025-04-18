@@ -4,7 +4,8 @@
   "main": "index.ts",
   "scripts": {
     "test": "npx jest --silent=false --forceExit",
-    "dev": "tsx watch src/index.ts"
+    "dev": "tsx watch src/index.ts",
+    "clean-db": "tsx src/scripts/clean-db.ts"
   },
   "author": "",
   "license": "ISC",

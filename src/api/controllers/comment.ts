@@ -28,7 +28,7 @@ class CommentController {
         res.status(200).json({
             success: true,
             message: "Comment fetched successfully.",
-            comment: await CommentService.findByPostId(id),
+            comments: await CommentService.findByPostId(id),
         })
     }
 
@@ -57,7 +57,6 @@ class CommentController {
         const updateData = {
             content: req.body.content,
             likes: req.body.likes,
-            replyIds: req.body.replyIds,
         };
         
         await CommentService.updateById(id, updateData);
