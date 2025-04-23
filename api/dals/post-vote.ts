@@ -2,7 +2,7 @@ import PostVote from "../models/post-vote";
 
 class PostVoteDAL {
   static async create(postId: number, userId: number, voteType: 'up' | 'down') {
-    return await PostVote.create({ postId, userId, voteType });
+    return await PostVote.upsert({ postId, userId, voteType });
   }
 
   static async findByPostIdAndUserId(postId: number, userId: number) {
@@ -10,11 +10,11 @@ class PostVoteDAL {
   }
 
   static async findByPostId(postId: number, voteType?: 'up' | 'down') {
-    return await PostVote.findAll({ where: { postId, voteType } });
+    return await PostVote.count({ where: { postId, voteType } });
   }
   
   static async findByUserId(userId: number, voteType?: 'up' | 'down') {
-    return await PostVote.findAll({ where: { userId, voteType } });
+    return await PostVote.count({ where: { userId, voteType } });
   }
 
   static async findAll() {

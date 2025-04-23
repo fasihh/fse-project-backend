@@ -7,18 +7,14 @@ import RequestError from "../errors/request-error";
 
 class PostVoteService {
   static async vote(postId: number, userId: number, role: 'admin' | 'member', voteType: 'up' | 'down') {
+    
     const post = await PostDAL.findById(postId);
     if (!post)
       throw new RequestError(ExceptionType.NOT_FOUND, "Post not found");
-
+    
     const user = await UserDAL.findById(userId);
     if (!user)
       throw new RequestError(ExceptionType.NOT_FOUND, "User not found");
-
-    // check if user is a member of the community
-    const membership = await CommunityMemberDAL.findMember(post.communityId, userId);
-    if (!membership && role !== 'admin')
-      throw new RequestError(ExceptionType.FORBIDDEN, "You are not a member of this community");
 
     const existingVote = await PostVoteDAL.findByPostIdAndUserId(postId, userId);
     if (!!existingVote) {

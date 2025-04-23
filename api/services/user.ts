@@ -48,9 +48,14 @@ class UserService {
   }
 
   static async create(username: string, displayName: string, email: string, password: string, role: 'member' | 'admin' = 'member') {
-    const existingUser = await UserDAL.findByEmail(email);
+    let existingUser = await UserDAL.findByEmail(email);
 
-    if (!!existingUser)
+    if (existingUser)
+      throw new RequestError(ExceptionType.CONFLICT);
+
+    existingUser = await UserDAL.findByUsername(username);
+
+    if (existingUser)
       throw new RequestError(ExceptionType.CONFLICT);
 
     // TEMPORARILY DISABLED VERIFICATION

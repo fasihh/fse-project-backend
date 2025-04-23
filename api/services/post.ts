@@ -10,6 +10,16 @@ class PostService {
     return await PostDAL.findAll();
   }
 
+  static async allRelevant(userId: number) {
+    const memberships = await CommunityMemberDAL.findByUserId(userId);
+    const posts = await Promise.all(memberships.map(async (membership) => {
+      const posts = await PostDAL.findByCommunityId(membership.communityId);
+      return posts;
+    }));
+
+    return posts.flat();
+  }
+
   static async create(title: string, content: string, communityId: number, userId: number, role: 'admin' | 'member') {
     if (!await CommunityDAL.findById(communityId))
       throw new RequestError(ExceptionType.NOT_FOUND, "Community not found");

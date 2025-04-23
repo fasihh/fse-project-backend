@@ -96,9 +96,6 @@ class UserController {
     if (password.length < 8)
       throw new RequestError(ExceptionType.BAD_REQUEST, 'Password must be at least 8 characters long');
 
-    if (await UserService.findByEmail(email) || await UserService.findByUsername(username))
-      throw new RequestError(ExceptionType.CONFLICT, 'User already exists');
-
     const role = key === process.env.ADMIN_KEY ? 'admin' : 'member';
     const user = await UserService.create(
       username,
@@ -114,7 +111,41 @@ class UserController {
         id: user.id,
         username: user.username,
         displayName: user.displayName,
-        role: user.role,
+        role,
+        createdAt: user.createdAt,
+        updatedAt: user.updatedAt
+      }
+    });
+  }
+
+  static async register(req: Request, res: Response) {
+    const { username, displayName, email, password, key } = req.body;
+
+    if (!username || !email || !password)
+      throw new RequestError(ExceptionType.BAD_REQUEST, 'Username, email and password are required');
+
+    if (password.length < 8)
+      throw new RequestError(ExceptionType.BAD_REQUEST, 'Password must be at least 8 characters long');
+
+    const role = key === process.env.ADMIN_KEY ? 'admin' : 'member';
+    const user = await UserService.create(
+      username,
+      displayName,
+      email,
+      password,
+      role
+    );
+
+    const { token } = await UserService.login({ username, email, password })
+
+    res.status(201).json({
+      message: 'User registered successfully',
+      token,
+      user: {
+        id: user.id,
+        username: user.username,
+        displayName: user.displayName,
+        role,
         createdAt: user.createdAt,
         updatedAt: user.updatedAt
       }
@@ -127,11 +158,19 @@ class UserController {
     if (!password || !(username || email))
       throw new RequestError(ExceptionType.BAD_REQUEST, 'Username or email is required');
 
-    const { token } = await UserService.login({ username, email, password });
+    const { user, token } = await UserService.login({ username, email, password });
 
     res.status(200).json({
       message: 'Login successful',
-      token
+      token,
+      user: {
+        id: user.id,
+        username: user.username,
+        displayName: user.displayName,
+        role: user.role,
+        createdAt: user.createdAt,
+        updatedAt: user.updatedAt
+      }
     });
   }
 
@@ -180,6 +219,7 @@ class UserController {
         name: membership.community!.name,
         description: membership.community!.description,
         tags: membership.community!.tags,
+        members: (await CommunityMemberService.getMembers(membership.community!.id)).length,
         joined: membership.joined
       })))
     });

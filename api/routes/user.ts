@@ -14,7 +14,8 @@ router.get('/verify/:token', asyncHandler(UserController.verify));
 
 router.post('/', asyncHandler(UserController.create));
 
-router.post('/login', authLimiter, asyncHandler(UserController.login));
+router.post('/register', /* authLimiter, */ asyncHandler(UserController.register));
+router.post('/login', /* authLimiter, */ asyncHandler(UserController.login));
 
 router.patch('/:id', authHandler, asyncHandler(UserController.update));
 router.delete('/:id', authHandler, asyncHandler(UserController.delete));

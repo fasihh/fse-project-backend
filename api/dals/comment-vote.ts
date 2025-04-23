@@ -11,11 +11,11 @@ class CommentVoteDAL {
   }
 
   static async findByCommentId(commentId: number, voteType?: 'up' | 'down') {
-    return await CommentVote.count({ where: { commentId, voteType } });
+    return await CommentVote.findAll({ where: { commentId, voteType } });
   }
   
   static async findByUserId(userId: number, voteType?: 'up' | 'down') {
-    return await CommentVote.count({ where: { userId, voteType } });
+    return await CommentVote.findAll({ where: { userId, voteType } });
   }
 
   static async findAll() {

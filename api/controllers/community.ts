@@ -59,7 +59,10 @@ class CommunityController {
 
   static async getById(req: Request, res: Response) {
     const { id } = req.params;
+    const { userid } = req.query;
     const numId = parseInt(id);
+    const numUserId = parseInt(userid as string);
+
     if (isNaN(numId))
       throw new RequestError(ExceptionType.BAD_REQUEST);
 
@@ -67,7 +70,18 @@ class CommunityController {
     if (!community)
       throw new RequestError(ExceptionType.NOT_FOUND, "Community not found");
 
-    res.status(200).json({ message: "Community retrieved successfully", community });
+    res.status(200).json({
+      message: "Community retrieved successfully",
+      community: {
+        id: community.id,
+        name: community.name,
+        description: community.description,
+        tags: community.tags,
+        createdAt: community.createdAt,
+        updatedAt: community.updatedAt,
+        isMember: isNaN(numUserId) ? undefined : !! await CommunityMemberService.findMember(community.id, numUserId)
+      }
+    });
   }
 
   static async getByName(req: Request, res: Response) {

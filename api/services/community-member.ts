@@ -18,6 +18,10 @@ class CommunityMemberService {
     return CommunityMemberDAL.create(communityId, userId);
   }
 
+  static async findMember(communityId: number, userId: number) {
+    return await CommunityMemberDAL.findMember(communityId, userId);
+  }
+
   static async removeMember(communityId: number, userId: number) {
     const result = await CommunityMemberDAL.delete(communityId, userId);
     if (!result)

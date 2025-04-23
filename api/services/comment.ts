@@ -18,11 +18,6 @@ class CommentService {
     if (parentId && !await CommentDAL.findById(parentId))
       throw new RequestError(ExceptionType.NOT_FOUND, "Parent comment not found");
 
-    // check if user is a member of the community
-    const membership = await CommunityMemberDAL.findMember(post.communityId, userId);
-    if (!membership && role !== 'admin')
-      throw new RequestError(ExceptionType.FORBIDDEN, "You are not a member of this community");
-
     return await CommentDAL.create(content, postId, userId, parentId);
   }
 

@@ -50,6 +50,11 @@ class PostDAL {
           as: "user",
           attributes: ["username", "displayName", "role"],
         },
+        {
+          model: Community,
+          as: "community",
+          attributes: ["name", "description"],
+        },
       ],
     });
   }
@@ -61,6 +66,11 @@ class PostDAL {
           model: Community,
           as: "community",
           attributes: ["name", "description"],
+        },
+        {
+          model: User,
+          as: "user",
+          attributes: ["username", "displayName", "role"],
         },
       ],
     });

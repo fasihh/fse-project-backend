@@ -5,8 +5,9 @@ import PostService from "../services/post";
 import PostVoteService from "../services/post-vote";
 
 class PostController {
-  static async getAll(_req: Request, res: Response) {
+  static async getAll(req: Request, res: Response) {
     const posts = await PostService.getAll();
+    const userId = req.user?.id;
 
     res.status(200).json({
       message: "Posts fetched successfully",
@@ -14,13 +15,53 @@ class PostController {
         id: post.id,
         title: post.title,
         content: post.content,
-        userId: post.userId,
-        communityId: post.communityId,
+        user: {
+          id: post.user!.id,
+          username: post.user!.username,
+          displayName: post.user!.displayName,
+          role: post.user!.role,
+        },
+        community: {
+          id: post.community!.id,
+          name: post.community!.name,
+          tags: post.community!.tags,
+        },
         downvotes: await PostVoteService.findByPostId(post.id, 'down'),
         upvotes: await PostVoteService.findByPostId(post.id, 'up'),
+        userVote: userId ? (await PostVoteService.findByPostIdAndUserId(post.id, userId))?.voteType : undefined,
         createdAt: post.createdAt,
         updatedAt: post.updatedAt,
       })))
+    });
+  }
+
+  static async allRelevant(req: Request, res: Response) {
+    const userId = req.user!.id!;
+    const posts = await PostService.allRelevant(userId);
+
+    res.status(200).json({
+      message: "Relevant posts fetched successfully",
+      posts: (await Promise.all(posts.map(async (post) => ({
+        id: post.id,
+        title: post.title,
+        content: post.content,
+        user: {
+          id: post.user!.id,
+          username: post.user!.username,
+          displayName: post.user!.displayName,
+          role: post.user!.role,
+        },
+        community: {
+          id: post.community!.id,
+          name: post.community!.name,
+          tags: post.community!.tags,
+        },
+        upvotes: await PostVoteService.findByPostId(post.id, 'up'),
+        downvotes: await PostVoteService.findByPostId(post.id, 'down'),
+        userVote: userId ? (await PostVoteService.findByPostIdAndUserId(post.id, userId))?.voteType : undefined,
+        createdAt: post.createdAt,
+        updatedAt: post.updatedAt,
+      })))).sort((a, b) => b.upvotes - a.upvotes)
     });
   }
 

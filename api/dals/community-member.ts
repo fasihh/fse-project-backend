@@ -34,6 +34,10 @@ class CommunityMemberDAL {
       }]
     });
   }
+
+  static async findByUserId(userId: number) {
+    return CommunityMember.findAll({ where: { userId } });
+  }
 }
 
 export default CommunityMemberDAL;

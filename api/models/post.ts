@@ -12,6 +12,9 @@ class Post extends Model<PostAttributes, PostCreationAttributes> {
   public communityId!: number;
   public readonly createdAt!: Date;
   public readonly updatedAt!: Date;
+
+  public user?: User;
+  public community?: Community;
 }
 
 Post.init(

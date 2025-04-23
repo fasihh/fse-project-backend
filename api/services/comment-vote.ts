@@ -14,11 +14,6 @@ class CommentVoteService {
     const user = await UserDAL.findById(userId);
     if (!user)
       throw new RequestError(ExceptionType.NOT_FOUND, "User not found");
-    
-    // check if user is a member of the community where the post is
-    const membership = await CommunityMemberDAL.findMember(comment.post.communityId, userId);
-    if (!membership && role !== 'admin')
-      throw new RequestError(ExceptionType.FORBIDDEN, "You are not a member of this community");
 
     const existingVote = await CommentVoteDAL.findByCommentIdAndUserId(commentId, userId);
     if (!!existingVote) {
