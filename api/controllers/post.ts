@@ -36,8 +36,12 @@ class PostController {
   }
 
   static async allRelevant(req: Request, res: Response) {
+    const { page = '1', limit = '10' } = req.query;
     const userId = req.user!.id!;
-    const posts = await PostService.allRelevant(userId);
+    const posts = await PostService.allRelevant(userId, {
+      page: parseInt(page as string),
+      limit: parseInt(limit as string)
+    });
 
     res.status(200).json({
       message: "Relevant posts fetched successfully",
@@ -97,6 +101,7 @@ class PostController {
 
   static async getByCommunityId(req: Request, res: Response) {
     const { id } = req.params;
+    const userId = req.user!.id!;
 
     const numId = parseInt(id);
     if (isNaN(numId))
@@ -110,10 +115,20 @@ class PostController {
         id: post.id,
         title: post.title,
         content: post.content,
-        userId: post.userId,
-        communityId: post.communityId,
+        user: {
+          id: post.user!.id,
+          username: post.user!.username,
+          displayName: post.user!.displayName,
+          role: post.user!.role,
+        },
+        community: {
+          id: post.community!.id,
+          name: post.community!.name,
+          tags: post.community!.tags,
+        },
         upvotes: await PostVoteService.findByPostId(post.id, 'up'),
         downvotes: await PostVoteService.findByPostId(post.id, 'down'),
+        userVote: userId ? (await PostVoteService.findByPostIdAndUserId(post.id, userId))?.voteType : undefined,
         createdAt: post.createdAt,
         updatedAt: post.updatedAt,
       })))

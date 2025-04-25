@@ -10,10 +10,10 @@ class PostService {
     return await PostDAL.findAll();
   }
 
-  static async allRelevant(userId: number) {
+  static async allRelevant(userId: number, pageinate?: { page: number, limit: number }) {
     const memberships = await CommunityMemberDAL.findByUserId(userId);
     const posts = await Promise.all(memberships.map(async (membership) => {
-      const posts = await PostDAL.findByCommunityId(membership.communityId);
+      const posts = await PostDAL.findByCommunityId(membership.communityId, pageinate);
       return posts;
     }));
 

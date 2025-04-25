@@ -8,20 +8,24 @@ class PostDAL {
     return await Post.create(post);
   }
 
-  static async findAll() {
+  static async findAll(pageinate?: { page: number, limit: number }) {
+    const { page = 1, limit = 10 } = pageinate ?? {};
+    const offset = (page - 1) * limit;
     return await Post.findAll({
       include: [
         {
           model: User,
           as: "user",
-          attributes: ["username", "displayName", "role"],
+          attributes: ["id", "username", "displayName", "role"],
         },
         {
           model: Community,
           as: "community",
-          attributes: ["name", "description"],
+          attributes: ["id", "name", "description"],
         },
       ],
+      offset,
+      limit,
     });
   }
 
@@ -31,31 +35,35 @@ class PostDAL {
         {
           model: User,
           as: "user",
-          attributes: ["username", "displayName", "role"],
+          attributes: ["id", "username", "displayName", "role"],
         },
         {
           model: Community,
           as: "community",
-          attributes: ["name", "description"],
+          attributes: ["id", "name", "description"],
         },
       ],
     });
   }
 
-  static async findByCommunityId(communityId: number) {
+  static async findByCommunityId(communityId: number, pageinate?: { page: number, limit: number }) {
+    const { page = 1, limit = 10 } = pageinate ?? {};
+    const offset = (page - 1) * limit;
     return await Post.findAll({ where: { communityId },
       include: [
         {
           model: User,
           as: "user",
-          attributes: ["username", "displayName", "role"],
+          attributes: ["id", "username", "displayName", "role"],
         },
         {
           model: Community,
           as: "community",
-          attributes: ["name", "description"],
+          attributes: ["id", "name", "tags", "description"],
         },
       ],
+      offset,
+      limit,
     });
   }
 

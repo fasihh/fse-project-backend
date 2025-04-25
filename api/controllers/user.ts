@@ -5,13 +5,12 @@ import RequestError from "../errors/request-error";
 import { ExceptionType } from "../errors/exceptions";
 import UserFriendService from "../services/user-friend";
 import CommunityMemberService from "../services/community-member";
+import CommentService from "../services/comment";
 
 class UserController {
   static async getAll(req: Request, res: Response) {
-    const { userId } = req.query;
+    const userId = req.user!.id!;
     const users: User[] = await UserService.getAll();
-
-    const userIdNumber = userId ? parseInt(userId as string) : undefined;
 
     res.status(200).json({
       message: 'Users fetched successfully',
@@ -23,7 +22,7 @@ class UserController {
         role: user.role,
         createdAt: user.createdAt,
         updatedAt: user.updatedAt,
-        // isMutualFriend: !!userIdNumber && userIdNumber !== user.id ? await UserFriendService.checkIfMutualFriend(userIdNumber, user.id) : undefined
+        isMutualFriend: await UserFriendService.checkIfMutualFriend(userId, user.id)
       })))
     });
   }
@@ -37,7 +36,6 @@ class UserController {
   }
 
   static async getById(req: Request, res: Response) {
-    const { userId } = req.query;
     const { id } = req.params;
     const numId = parseInt(id);
 
@@ -166,6 +164,7 @@ class UserController {
       user: {
         id: user.id,
         username: user.username,
+        email: user.email,
         displayName: user.displayName,
         role: user.role,
         createdAt: user.createdAt,
@@ -207,6 +206,13 @@ class UserController {
     await UserService.delete(numId);
 
     res.status(200).json({ message: 'User deleted successfully' });
+  }
+
+  static async findUserComments(req: Request, res: Response) {
+    const userId = req.user!.id!;
+
+    const comments = await CommentService.findByUserId(userId);
+    res.status(200).json({ message: "Comments fetched successfully", comments });
   }
 
   static async getJoinedCommunities(req: Request, res: Response) {
@@ -263,18 +269,6 @@ class UserController {
         isMutualFriend: await UserFriendService.checkIfMutualFriend(req.user!.id as number, friend.id)
       })))
     });
-  }
-
-  static async checkIfMutualFriend(req: Request, res: Response) {
-    const { id } = req.params;
-    const numId = parseInt(id);
-
-    if (isNaN(numId))
-      throw new RequestError(ExceptionType.BAD_REQUEST);
-
-    const isMutualFriend = await UserFriendService.checkIfMutualFriend(req.user!.id as number, numId);
-
-    res.status(200).json({ message: 'Mutual friend check successful', isMutualFriend });
   }
 }
 

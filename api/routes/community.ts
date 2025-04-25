@@ -10,14 +10,14 @@ router.post('/', authHandler, asyncHandler(CommunityController.create));
 router.patch('/:id', authHandler, asyncHandler(CommunityController.update));
 router.delete('/:id', authHandler, asyncHandler(CommunityController.delete));
 
-router.get('/', asyncHandler(CommunityController.getAll));
-router.get('/id/:id', asyncHandler(CommunityController.getById));
-router.get('/name/:name', asyncHandler(CommunityController.getByName));
+router.get('/', authHandler, asyncHandler(CommunityController.getAll));
+router.get('/id/:id', authHandler, asyncHandler(CommunityController.getById));
+router.get('/name/:name', authHandler, asyncHandler(CommunityController.getByName));
 
 router.post('/join/:id', authHandler, asyncHandler(CommunityController.joinCommunity));
-router.delete('/leave/:id', authHandler, asyncHandler(CommunityController.leaveCommunity));
+router.post('/leave/:id', authHandler, asyncHandler(CommunityController.leaveCommunity));
 
-router.get('/members/:id', asyncHandler(CommunityController.getCommunityMembers));
-router.get('/user/:id', asyncHandler(CommunityController.getUserCommunities));
+router.get('/members/:id', authHandler, asyncHandler(CommunityController.getCommunityMembers));
+router.get('/user/:id', authHandler, asyncHandler(CommunityController.getUserCommunities));
 
 export default router;

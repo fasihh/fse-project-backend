@@ -14,16 +14,18 @@ const authHandler = asyncHandler(async (req: Request, res: Response, next: NextF
 
   const token = authHeader.replace('Bearer ', '');
 
-  const decoded = jwt.verify(
-    token,
-    process.env.JWT_KEY || 'secret-key'
-  ) as UserPayload;
+  try {
+    const decoded = jwt.verify(
+      token,
+      process.env.JWT_KEY || 'secret-key'
+    ) as UserPayload;
 
   const user = await UserDAL.findById(decoded.id as number);
   if (!user)
     return next();
 
-  req.user = { ...decoded, role: user.role };
+    req.user = { ...decoded, role: user.role };
+  } catch {}
   next();
 });
 

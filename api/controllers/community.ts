@@ -59,9 +59,8 @@ class CommunityController {
 
   static async getById(req: Request, res: Response) {
     const { id } = req.params;
-    const { userid } = req.query;
     const numId = parseInt(id);
-    const numUserId = parseInt(userid as string);
+    const userId = req.user!.id!;
 
     if (isNaN(numId))
       throw new RequestError(ExceptionType.BAD_REQUEST);
@@ -69,6 +68,8 @@ class CommunityController {
     const community = await CommunityService.getById(numId);
     if (!community)
       throw new RequestError(ExceptionType.NOT_FOUND, "Community not found");
+
+    const members = await CommunityMemberService.getMembers(community.id);
 
     res.status(200).json({
       message: "Community retrieved successfully",
@@ -79,24 +80,51 @@ class CommunityController {
         tags: community.tags,
         createdAt: community.createdAt,
         updatedAt: community.updatedAt,
-        isMember: isNaN(numUserId) ? undefined : !! await CommunityMemberService.findMember(community.id, numUserId)
+        memberCount: members.length,
+        members,
+        isMember: !! await CommunityMemberService.findMember(community.id, userId)
       }
     });
   }
 
   static async getByName(req: Request, res: Response) {
     const { name } = req.params;
+    const userId = req.user!.id!;
 
-    const community = await CommunityService.getByName(name);
-    if (!community)
-      throw new RequestError(ExceptionType.NOT_FOUND, "Community not found");
+    const communities = await CommunityService.getAllByName(name);
 
-    res.status(200).json({ message: "Community retrieved successfully", community });
+    res.status(200).json({
+      message: "Communities retrieved successfully",
+      communities: await Promise.all(communities.map(async (community) => ({
+        id: community.id,
+        name: community.name,
+        description: community.description,
+        tags: community.tags,
+        createdAt: community.createdAt,
+        updatedAt: community.updatedAt,
+        memberCount: (await CommunityMemberService.getMembers(community.id)).length,
+        isMember: !! await CommunityMemberService.findMember(community.id, userId)
+      })))
+    });
   }
 
-  static async getAll(_req: Request, res: Response) {
+  static async getAll(req: Request, res: Response) {
+    const userId = req.user!.id!;
     const communities = await CommunityService.getAll();
-    res.status(200).json({ message: "Communities retrieved successfully", communities });
+
+    res.status(200).json({
+      message: "Communities retrieved successfully",
+      communities: (await Promise.all(communities.map(async (community) => ({
+        id: community.id,
+        name: community.name,
+        description: community.description,
+        tags: community.tags,
+        createdAt: community.createdAt,
+        updatedAt: community.updatedAt,
+        memberCount: (await CommunityMemberService.getMembers(community.id)).length,
+        isMember: !! await CommunityMemberService.findMember(community.id, userId)
+      })))).sort((a, b) => b.memberCount - a.memberCount)
+    });
   }
 
   static async joinCommunity(req: Request, res: Response) {

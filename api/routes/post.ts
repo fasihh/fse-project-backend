@@ -9,11 +9,11 @@ const router = Router();
 
 router.post("/", authHandler, upload.array("files", 5), asyncHandler(PostController.create));
 
-router.get("/", tokenParser, asyncHandler(PostController.getAll));
-router.get("/relevant", tokenParser, asyncHandler(PostController.allRelevant));
-router.get("/:id", tokenParser, asyncHandler(PostController.getById));
-router.get("/community/:id", tokenParser, asyncHandler(PostController.getByCommunityId));
-router.get("/user/:id", tokenParser, asyncHandler(PostController.getByUserId));
+router.get("/", authHandler, asyncHandler(PostController.getAll));
+router.get("/relevant", authHandler, asyncHandler(PostController.allRelevant));
+router.get("/:id", authHandler, asyncHandler(PostController.getById));
+router.get("/community/:id", authHandler, asyncHandler(PostController.getByCommunityId));
+router.get("/user/:id", authHandler, asyncHandler(PostController.getByUserId));
 
 router.patch("/:id", authHandler, upload.array("files", 5), asyncHandler(PostController.update));
 router.delete("/:id", authHandler, asyncHandler(PostController.delete));

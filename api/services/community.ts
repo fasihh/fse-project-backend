@@ -34,6 +34,10 @@ class CommunityService {
     return CommunityDAL.findByName(name);
   }
 
+  static async getAllByName(name: string) {
+    return CommunityDAL.findAllByName(name);
+  }
+
   static async getAll() {
     return CommunityDAL.findAll();
   }

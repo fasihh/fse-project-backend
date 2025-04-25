@@ -1,3 +1,4 @@
+import { Op } from "sequelize";
 import Community from "../models/community";
 import { CommunityCreationAttributes } from "../models/community.d";
 
@@ -24,6 +25,23 @@ class CommunityDAL {
 
   static async findByName(name: string) {
     return Community.findOne({ where: { name } });
+  }
+
+  static async findAllByName(name: string) {
+    return Community.findAll({
+      where: {
+        [Op.or]: [
+          {
+            name: {
+              [Op.iLike]: `%${name}%`
+            },
+            description: {
+              [Op.iLike]: `%${name}%`
+            }
+          }
+        ]
+      }
+    });
   }
 
   // TODO: Add community by tags
