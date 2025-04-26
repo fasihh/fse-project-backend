@@ -3,7 +3,7 @@ import CommentVote from "../models/comment-vote";
 
 class CommentVoteDAL {
   static async create(commentId: number, userId: number, voteType: 'up' | 'down') {
-    return await CommentVote.create({ commentId, userId, voteType });
+    return await CommentVote.upsert({ commentId, userId, voteType });
   }
 
   static async findByCommentIdAndUserId(commentId: number, userId: number) {

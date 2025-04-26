@@ -16,15 +16,15 @@ class PostController {
         title: post.title,
         content: post.content,
         user: {
-          id: post.user!.id,
-          username: post.user!.username,
-          displayName: post.user!.displayName,
-          role: post.user!.role,
+          id: post.user?.id,
+          username: post.user?.username,
+          displayName: post.user?.displayName,
+          role: post.user?.role,
         },
         community: {
-          id: post.community!.id,
-          name: post.community!.name,
-          tags: post.community!.tags,
+          id: post.community?.id,
+          name: post.community?.name,
+          tags: post.community?.tags,
         },
         downvotes: await PostVoteService.findByPostId(post.id, 'down'),
         upvotes: await PostVoteService.findByPostId(post.id, 'up'),
@@ -50,15 +50,15 @@ class PostController {
         title: post.title,
         content: post.content,
         user: {
-          id: post.user!.id,
-          username: post.user!.username,
-          displayName: post.user!.displayName,
-          role: post.user!.role,
+          id: post.user?.id,
+          username: post.user?.username,
+          displayName: post.user?.displayName,
+          role: post.user?.role,
         },
         community: {
-          id: post.community!.id,
-          name: post.community!.name,
-          tags: post.community!.tags,
+          id: post.community?.id,
+          name: post.community?.name,
+          tags: post.community?.tags,
         },
         upvotes: await PostVoteService.findByPostId(post.id, 'up'),
         downvotes: await PostVoteService.findByPostId(post.id, 'down'),
@@ -84,6 +84,7 @@ class PostController {
 
   static async getById(req: Request, res: Response) {
     const { id } = req.params;
+    const userId = req.user!.id!;
 
     const numId = parseInt(id);
     if (isNaN(numId))
@@ -91,11 +92,32 @@ class PostController {
 
     const post = await PostService.getById(numId);
 
+    if (!post)
+      throw new RequestError(ExceptionType.NOT_FOUND, "Post not found");
+
     res.status(200).json({
       message: "Post fetched successfully",
-      post,
-      upvotes: await PostVoteService.findByPostId(numId, 'up'),
-      downvotes: await PostVoteService.findByPostId(numId, 'down'),
+      post: {
+        id: post.id,
+        title: post.title,
+        content: post.content,
+        user: {
+          id: post.user?.id,
+          username: post.user?.username,
+          displayName: post.user?.displayName,
+          role: post.user?.role,
+        },
+        community: {
+          id: post.community?.id,
+          name: post.community?.name,
+          tags: post.community?.tags,
+        },
+        upvotes: await PostVoteService.findByPostId(numId, 'up'),
+        downvotes: await PostVoteService.findByPostId(numId, 'down'),
+        userVote: userId ? (await PostVoteService.findByPostIdAndUserId(numId, userId))?.voteType : undefined,
+        createdAt: post.createdAt,
+        updatedAt: post.updatedAt,
+      },
     });
   }
 
@@ -116,15 +138,15 @@ class PostController {
         title: post.title,
         content: post.content,
         user: {
-          id: post.user!.id,
-          username: post.user!.username,
-          displayName: post.user!.displayName,
-          role: post.user!.role,
+          id: post.user?.id,
+          username: post.user?.username,
+          displayName: post.user?.displayName,
+          role: post.user?.role,
         },
         community: {
-          id: post.community!.id,
-          name: post.community!.name,
-          tags: post.community!.tags,
+          id: post.community?.id,
+          name: post.community?.name,
+          tags: post.community?.tags,
         },
         upvotes: await PostVoteService.findByPostId(post.id, 'up'),
         downvotes: await PostVoteService.findByPostId(post.id, 'down'),
@@ -166,13 +188,8 @@ class PostController {
     const numId = parseInt(id);
     if (isNaN(numId))
       throw new RequestError(ExceptionType.BAD_REQUEST, "Invalid post ID");
-    
-    if (req.body.communityId)
-      delete req.body.communityId;
-    if (req.body.userId)
-      delete req.body.userId;
 
-    await PostService.update(numId, req.body, req.user!.id!, req.user!.role!);
+    await PostService.update(numId, { content: req.body.content as string, title: req.body.title as string }, req.user!.id!, req.user!.role!);
     
     res.status(200).json({ message: "Post updated successfully" });
   }

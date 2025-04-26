@@ -39,6 +39,7 @@ class CommentController {
 
   static async findByPostId(req: Request, res: Response) {
     const { id } = req.params;
+    const userId = req.user!.id!;
 
     const numId = parseInt(id); 
     if (isNaN(numId))
@@ -48,9 +49,10 @@ class CommentController {
     
     // dont fetch children for each comment later on. fetch only the first level of comments
     // and then fetch the children for each comment in the frontend
+    // also dont sort on time here
     res.status(200).json({
       message: "Comments fetched successfully",
-      comments: await Promise.all(comments.map(async (comment) => ({
+      comments: (await Promise.all(comments.map(async (comment) => ({
         id: comment.id,
         content: comment.content,
         parentId: comment.parentId,
@@ -62,16 +64,18 @@ class CommentController {
           parentId: child.parentId,
           postId: child.postId,
           user: child.user,
-          upvotes: await CommentVoteService.findByCommentId(child.id, "up"),
-          downvotes: await CommentVoteService.findByCommentId(child.id, "down"),
+          upvotes: (await CommentVoteService.findByCommentId(child.id, "up")).length,
+          downvotes: (await CommentVoteService.findByCommentId(child.id, "down")).length,
+          userVote: (await CommentVoteService.findByCommentIdAndUserId(child.id, userId))?.voteType,
           createdAt: child.createdAt,
           updatedAt: child.updatedAt,
         }))),
         createdAt: comment.createdAt,
         updatedAt: comment.updatedAt,
-        upvotes: await CommentVoteService.findByCommentId(comment.id, "up"),
-        downvotes: await CommentVoteService.findByCommentId(comment.id, "down"),
-      }))),
+        userVote: (await CommentVoteService.findByCommentIdAndUserId(comment.id, userId))?.voteType,
+        upvotes: (await CommentVoteService.findByCommentId(comment.id, "up")).length,
+        downvotes: (await CommentVoteService.findByCommentId(comment.id, "down")).length,
+      })))).sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime()),
     });
   }
 

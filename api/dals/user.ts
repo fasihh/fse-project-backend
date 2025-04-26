@@ -30,8 +30,8 @@ class UserDAL {
     return await User.create(user);
   }
 
-  static async update(id: number, user: UserCreationAttributes) {
-    return await User.update({ id: undefined, ...user }, { where: { id } });
+  static async update(id: number, user: Partial<UserCreationAttributes>) {
+    return await User.update({ ...user }, { where: { id } });
   }
 
   static async delete(id: number) {

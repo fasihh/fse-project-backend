@@ -38,6 +38,7 @@ class UserController {
   static async getById(req: Request, res: Response) {
     const { id } = req.params;
     const numId = parseInt(id);
+    const userId = req.user!.id!;
 
     if (isNaN(numId))
       throw new RequestError(ExceptionType.BAD_REQUEST);
@@ -56,13 +57,14 @@ class UserController {
         role: user!.role,
         createdAt: user!.createdAt,
         updatedAt: user!.updatedAt,
+        isMutualFriend: await UserFriendService.checkIfMutualFriend(userId, user.id)
       }
     });
   }
 
   static async getByName(req: Request, res: Response) {
     const { username } = req.params;
-    const { userId } = req.query;
+    const userId = req.user!.id!;
 
     if (!username)
       throw new RequestError(ExceptionType.BAD_REQUEST);
@@ -81,6 +83,7 @@ class UserController {
         role: user!.role,
         createdAt: user!.createdAt,
         updatedAt: user!.updatedAt,
+        isMutualFriend: await UserFriendService.checkIfMutualFriend(userId, user.id)
       }
     });
   }
@@ -181,17 +184,7 @@ class UserController {
     if (numId !== req.user!.id && req.user!.role !== 'admin')
       throw new RequestError(ExceptionType.FORBIDDEN, 'You are not allowed to update this user');
 
-    await UserService.update(
-      numId,
-      { 
-        username: req.user!.username,
-        displayName,
-        email: req.user!.email,
-        password: req.user!.password,
-        role: req.user!.role,
-        isVerified: req.user!.isVerified
-      }
-    );
+    await UserService.update(numId, { displayName });
 
     res.status(200).json({ message: 'User updated successfully' });
   }

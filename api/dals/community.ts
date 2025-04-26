@@ -7,8 +7,8 @@ class CommunityDAL {
     return Community.create(community);
   }
 
-  static async update(id: number, community: CommunityCreationAttributes) {
-    return Community.update({ id: undefined, ...community }, { where: { id } });
+  static async update(id: number, community: Partial<CommunityCreationAttributes>) {
+    return Community.update({ ...community }, { where: { id } });
   }
 
   static async delete(id: number) {

@@ -12,7 +12,7 @@ class CommunityService {
     return CommunityDAL.create({ name, description, tags: tags.join(",") });
   }
 
-  static async update(id: number, community: CommunityCreationAttributes) {
+  static async update(id: number, community: Partial<CommunityCreationAttributes>) {
     if (!await CommunityDAL.findById(id))
       throw new RequestError(ExceptionType.NOT_FOUND, "Community not found");
 

@@ -86,8 +86,8 @@ class CommentDAL {
     return await Comment.findOne({ where: { postId, userId } });
   }
 
-  static async update(id: number, comment: CommentCreationAttributes) {
-    return await Comment.update({ id: undefined, ...comment }, { where: { id } });
+  static async update(id: number, comment: Partial<CommentCreationAttributes>) {
+    return await Comment.update({ ...comment }, { where: { id } });
   }
 
   static async delete(id: number) {

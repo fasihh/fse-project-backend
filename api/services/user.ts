@@ -77,7 +77,7 @@ class UserService {
     return user;
   }
 
-  static async update(id: number, user: UserCreationAttributes) {
+  static async update(id: number, user: Partial<UserCreationAttributes>) {
     if (! await UserDAL.findById(id))
       throw new RequestError(ExceptionType.NOT_FOUND);
 

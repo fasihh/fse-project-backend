@@ -53,7 +53,7 @@ class CommentService {
     if (comment.userId !== userId && role !== 'admin')
       throw new RequestError(ExceptionType.FORBIDDEN, "You are not allowed to update this comment");
 
-    return await CommentDAL.update(id, { content, userId, postId: comment.postId, parentId: comment.parentId });
+    return await CommentDAL.update(id, { content });
   }
 
   static async delete(id: number, userId: number, role: 'admin' | 'member') {

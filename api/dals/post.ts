@@ -84,8 +84,8 @@ class PostDAL {
     });
   }
 
-  static async update(id: number, post: PostCreationAttributes) {
-    return await Post.update({ id: undefined, ...post }, { where: { id } });
+  static async update(id: number, post: Partial<PostCreationAttributes>) {
+    return await Post.update({ ...post }, { where: { id } });
   }
 
   static async delete(id: number) { 
