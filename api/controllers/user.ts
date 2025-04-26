@@ -175,7 +175,7 @@ class UserController {
 
   static async update(req: Request, res: Response) {
     const { id } = req.params;
-    const { username, displayName, email, password } = req.body;
+    const { displayName } = req.body;
     
     const numId = parseInt(id);
     if (numId !== req.user!.id && req.user!.role !== 'admin')
@@ -184,10 +184,10 @@ class UserController {
     await UserService.update(
       numId,
       { 
-        username,
+        username: req.user!.username,
         displayName,
-        email,
-        password,
+        email: req.user!.email,
+        password: req.user!.password,
         role: req.user!.role,
         isVerified: req.user!.isVerified
       }
@@ -200,7 +200,7 @@ class UserController {
     const { id } = req.params;
 
     const numId = parseInt(id);
-    if (numId !== req.user!.id && req.user!.role !== 'admin')
+    if (req.user!.role !== 'admin')
       throw new RequestError(ExceptionType.FORBIDDEN, 'You are not allowed to delete this user');
 
     await UserService.delete(numId);
