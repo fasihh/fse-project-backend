@@ -218,7 +218,7 @@ class UserController {
         name: membership.community!.name,
         description: membership.community!.description,
         tags: membership.community!.tags,
-        members: (await CommunityMemberService.getMembers(membership.community!.id)).length,
+        memberCount: (await CommunityMemberService.getMembers(membership.community!.id)).length,
         joined: membership.joined
       })))
     });

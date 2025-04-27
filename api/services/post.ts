@@ -10,6 +10,13 @@ class PostService {
     return await PostDAL.findAll();
   }
 
+  static async getAllPending(role: 'admin' | 'member') {
+    if (role !== 'admin')
+      throw new RequestError(ExceptionType.FORBIDDEN, "You are not allowed to view pending posts");
+
+    return await PostDAL.findAllPending();
+  }
+
   static async allRelevant(userId: number, pageinate?: { page: number, limit: number }) {
     const memberships = await CommunityMemberDAL.findByUserId(userId);
     const posts = await Promise.all(memberships.map(async (membership) => {
@@ -29,7 +36,7 @@ class PostService {
     if (!membership && role !== 'admin')
       throw new RequestError(ExceptionType.FORBIDDEN, "You are not a member of this community");
 
-    return await PostDAL.create({ title, content, communityId, userId });
+    return await PostDAL.create({ title, content, communityId, userId, isPinned: false, isPending: role === 'member' });
   }
 
   static async getById(id: number) {
@@ -67,6 +74,38 @@ class PostService {
 
     return await PostDAL.delete(id);
   }
-}
 
+  static async pin(state: boolean, id: number, userId: number, role: 'admin' | 'member') {
+    const existingPost = await PostDAL.findById(id);
+
+    if (!existingPost)
+      throw new RequestError(ExceptionType.NOT_FOUND, "Post not found");
+
+    if (existingPost.isPending && role !== 'admin')
+      throw new RequestError(ExceptionType.FORBIDDEN, "You are not allowed to pin this post");
+
+    return await PostDAL.update(id, { isPinned: state });
+  }
+
+  static async approve(id: number) {
+    const existingPost = await PostDAL.findById(id);
+
+    if (!existingPost)
+      throw new RequestError(ExceptionType.NOT_FOUND, "Post not found");
+
+    if (!existingPost.isPending)
+      throw new RequestError(ExceptionType.FORBIDDEN, "This post is not pending");
+
+    return await PostDAL.update(id, { isPending: false });
+  }
+
+  static async reject(id: number) {
+    const existingPost = await PostDAL.findById(id);
+
+    if (!existingPost)
+      throw new RequestError(ExceptionType.NOT_FOUND, "Post not found");
+
+    return await PostDAL.delete(id);
+  }
+}
 export default PostService;

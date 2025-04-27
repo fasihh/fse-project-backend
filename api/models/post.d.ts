@@ -8,6 +8,8 @@ export interface PostAttributes {
   content: string;
   userId: number;
   communityId: number;
+  isPinned: boolean;
+  isPending: boolean;
   createdAt?: Date;
   updatedAt?: Date;
 }
@@ -20,6 +22,8 @@ declare class Post extends Model<PostAttributes, PostCreationAttributes> impleme
   public content: string;
   public userId: number;
   public communityId: number;
+  public isPinned: boolean;
+  public isPending: boolean;
   public readonly createdAt: Date;
   public readonly updatedAt: Date;
 

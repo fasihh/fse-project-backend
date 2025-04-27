@@ -4,13 +4,15 @@ import RequestError from "../errors/request-error";
 import { ExceptionType } from "../errors/exceptions";
 import PostDAL from "../dals/post";
 import UserDAL from "../dals/user";
-import CommunityMemberDAL from "../dals/community-member";
 
 class CommentService {
   static async create(content: string, postId: number, userId: number, role: 'admin' | 'member', parentId?: number) {
     const post = await PostDAL.findById(postId);
     if (!post)
       throw new RequestError(ExceptionType.NOT_FOUND, "Post not found");
+
+    if (post.isPending)
+      throw new RequestError(ExceptionType.BAD_REQUEST, "Post is pending");
 
     if (!await UserDAL.findById(userId))
       throw new RequestError(ExceptionType.NOT_FOUND, "User not found");

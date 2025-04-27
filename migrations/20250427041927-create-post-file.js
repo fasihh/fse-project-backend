@@ -3,47 +3,28 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up (queryInterface, Sequelize) {
-    await queryInterface.createTable('Post', {
+    await queryInterface.createTable('PostFile', {
       id: {
         type: Sequelize.INTEGER,
         autoIncrement: true,
         primaryKey: true,
       },
-      title: {
+      postId: {
+        type: Sequelize.INTEGER,
+        allowNull: false,
+        references: {
+          model: 'Post',
+          key: 'id',
+        },
+        onDelete: 'CASCADE',
+      },
+      path: {
         type: Sequelize.STRING,
         allowNull: false,
       },
-      content: {
-        type: Sequelize.TEXT,
-        allowNull: false,
-      },
-      userId: {
+      size: {
         type: Sequelize.INTEGER,
         allowNull: false,
-        references: {
-          model: 'User',
-          key: 'id',
-        },
-        onDelete: 'CASCADE',
-      },
-      communityId: {
-        type: Sequelize.INTEGER,
-        allowNull: false,
-        references: {
-          model: 'Community',
-          key: 'id',
-        },
-        onDelete: 'CASCADE',
-      },
-      isPinned: {
-        type: Sequelize.BOOLEAN,
-        allowNull: false,
-        defaultValue: false,
-      },
-      isPending: {
-        type: Sequelize.BOOLEAN,
-        allowNull: false,
-        defaultValue: false,
       },
       createdAt: {
         type: Sequelize.DATE,
@@ -56,9 +37,15 @@ module.exports = {
         defaultValue: Sequelize.NOW,
       },
     });
-  },
 
+    await queryInterface.addIndex('PostFile', ['path']);
+    await queryInterface.addConstraint('PostFile', {
+      type: 'unique',
+      fields: ['path'],
+      name: 'unique_path',
+    });
+  },
   async down (queryInterface, Sequelize) {
-    await queryInterface.dropTable('Post');
+    await queryInterface.dropTable('PostFile');
   }
 };

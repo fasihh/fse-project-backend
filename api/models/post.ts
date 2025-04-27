@@ -10,6 +10,8 @@ class Post extends Model<PostAttributes, PostCreationAttributes> {
   public content!: string;
   public userId!: number;
   public communityId!: number;
+  public isPinned!: boolean;
+  public isPending!: boolean;
   public readonly createdAt!: Date;
   public readonly updatedAt!: Date;
 
@@ -49,6 +51,16 @@ Post.init(
         key: 'id',
       },
       onDelete: 'CASCADE',
+    },
+    isPinned: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: false,
+    },
+    isPending: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: false,
     },
     createdAt: {
       type: DataTypes.DATE,

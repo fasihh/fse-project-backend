@@ -1,35 +1,34 @@
-import { v2 as cloudinary } from 'cloudinary';
-import { CloudinaryStorage } from 'multer-storage-cloudinary';
 import multer from 'multer';
+import path from 'path';
+import RequestError from '../errors/request-error';
+import { ExceptionType } from '../errors/exceptions';
+import { v4 as uuidv4 } from 'uuid';
 
-// Configure Cloudinary
-cloudinary.config({
-    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-    api_key: process.env.CLOUDINARY_API_KEY,
-    api_secret: process.env.CLOUDINARY_API_SECRET
-});
+const allowedFormats = ['.jpg', '.jpeg', '.png', '.gif', '.pdf', '.doc', '.docx', '.xls', '.xlsx', '.ppt', '.pptx'];
 
-const storage = new CloudinaryStorage({
-    cloudinary: cloudinary,
-    params: {
-        folder: 'posts',
-        allowed_formats: ['jpg', 'png', 'gif', 'pdf', 'doc', 'docx', 'xls', 'xlsx', 'zip', 'rar'],
-        resource_type: 'auto',
-    } as any
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, 'uploads/');
+  },
+  filename: function (req, file, cb) {
+    cb(null, uuidv4() + '-' + file.originalname);
+  },
 });
 
 const fileFilter = (req: Express.Request, file: Express.Multer.File, cb: multer.FileFilterCallback) => {
-    if (file.mimetype.startsWith('video/')) {
-        cb(new Error('Video files are not allowed'));
-        return;
-    }
+  const ext = path.extname(file.originalname).toLowerCase();
+  if (allowedFormats.includes(ext)) {
     cb(null, true);
+  } else {
+    throw new RequestError(ExceptionType.BAD_REQUEST, "Invalid file type");
+    // cb(new RequestError(ExceptionType.BAD_REQUEST, "Invalid file type"));
+  }
 };
 
 export const upload = multer({
-    storage: storage,
-    fileFilter: fileFilter,
-    limits: {
-        fileSize: 10 * 1024 * 1024,
-    }
+  storage,
+  limits: { files: 5 },
+  fileFilter,
 });
+
+export default upload;

@@ -8,6 +8,24 @@ class PostDAL {
     return await Post.create(post);
   }
 
+  static async findAllPending() {
+    return await Post.findAll({ where: { isPending: true },
+      include: [
+        {
+          model: User,
+          as: "user",
+          attributes: ["id", "username", "displayName", "role"],
+        },
+        {
+          model: Community,
+          as: "community",
+          attributes: ["id", "name", "description"],
+        },
+      ],
+      order: [["createdAt", "DESC"]],
+    });
+  }
+
   static async findAll(pageinate?: { page: number, limit: number }) {
     const { page = 1, limit = 10 } = pageinate ?? {};
     const offset = (page - 1) * limit;
@@ -49,7 +67,7 @@ class PostDAL {
   static async findByCommunityId(communityId: number, pageinate?: { page: number, limit: number }) {
     const { page = 1, limit = 10 } = pageinate ?? {};
     const offset = (page - 1) * limit;
-    return await Post.findAll({ where: { communityId },
+    return await Post.findAll({ where: { communityId, isPending: false },
       include: [
         {
           model: User,

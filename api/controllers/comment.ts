@@ -64,8 +64,8 @@ class CommentController {
           parentId: child.parentId,
           postId: child.postId,
           user: child.user,
-          upvotes: (await CommentVoteService.findByCommentId(child.id, "up")).length,
-          downvotes: (await CommentVoteService.findByCommentId(child.id, "down")).length,
+          upvotes: await CommentVoteService.findByCommentId(child.id, "up"),
+          downvotes: await CommentVoteService.findByCommentId(child.id, "down"),
           userVote: (await CommentVoteService.findByCommentIdAndUserId(child.id, userId))?.voteType,
           createdAt: child.createdAt,
           updatedAt: child.updatedAt,
@@ -73,8 +73,8 @@ class CommentController {
         createdAt: comment.createdAt,
         updatedAt: comment.updatedAt,
         userVote: (await CommentVoteService.findByCommentIdAndUserId(comment.id, userId))?.voteType,
-        upvotes: (await CommentVoteService.findByCommentId(comment.id, "up")).length,
-        downvotes: (await CommentVoteService.findByCommentId(comment.id, "down")).length,
+        upvotes: await CommentVoteService.findByCommentId(comment.id, "up"),
+        downvotes: await CommentVoteService.findByCommentId(comment.id, "down"),
       })))).sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime()),
     });
   }
