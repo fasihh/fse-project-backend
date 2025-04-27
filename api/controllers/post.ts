@@ -89,7 +89,7 @@ class PostController {
     if (!title || (content === undefined) || !communityId)
       throw new RequestError(ExceptionType.BAD_REQUEST, "All fields are required");
 
-    const post = await PostService.create(title, content, communityId, userId, req.user!.role!, !!files);
+    const post = await PostService.create(title, content, communityId, userId, req.user!.role!, files.length > 0);
     await PostFileService.setFiles(post.id, files, "[]");
 
     res.status(201).json({ message: "Post created successfully", post });

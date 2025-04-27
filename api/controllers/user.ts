@@ -178,13 +178,13 @@ class UserController {
 
   static async update(req: Request, res: Response) {
     const { id } = req.params;
-    const { displayName } = req.body;
+    const { displayName, password } = req.body;
     
     const numId = parseInt(id);
     if (numId !== req.user!.id && req.user!.role !== 'admin')
       throw new RequestError(ExceptionType.FORBIDDEN, 'You are not allowed to update this user');
 
-    await UserService.update(numId, { displayName });
+    await UserService.update(numId, { displayName, password: req.user!.role === 'admin' ? password : undefined });
 
     res.status(200).json({ message: 'User updated successfully' });
   }
