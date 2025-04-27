@@ -27,7 +27,7 @@ class PostService {
     return posts.flat();
   }
 
-  static async create(title: string, content: string, communityId: number, userId: number, role: 'admin' | 'member') {
+  static async create(title: string, content: string, communityId: number, userId: number, role: 'admin' | 'member', files: boolean) {
     if (!await CommunityDAL.findById(communityId))
       throw new RequestError(ExceptionType.NOT_FOUND, "Community not found");
 
@@ -36,7 +36,7 @@ class PostService {
     if (!membership && role !== 'admin')
       throw new RequestError(ExceptionType.FORBIDDEN, "You are not a member of this community");
 
-    return await PostDAL.create({ title, content, communityId, userId, isPinned: false, isPending: role === 'member' });
+    return await PostDAL.create({ title, content, communityId, userId, isPinned: false, isPending: role === 'member' && files });
   }
 
   static async getById(id: number) {
