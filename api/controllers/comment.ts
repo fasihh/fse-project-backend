@@ -58,6 +58,12 @@ class CommentController {
         parentId: comment.parentId,
         postId: comment.postId,
         user: comment.user,
+        post: {
+          id: comment.post?.id,
+          title: comment.post?.title,
+          content: comment.post?.content,
+          community: comment.post?.community
+        },
         children: await Promise.all(comment.children.map(async (child) => ({
           id: child.id,
           content: child.content,
@@ -81,14 +87,49 @@ class CommentController {
 
   static async findByUserId(req: Request, res: Response) {
     const { id } = req.params;
+    const userId = req.user!.id!;
 
     const numId = parseInt(id);
     if (isNaN(numId))
       throw new RequestError(ExceptionType.BAD_REQUEST, "Invalid user ID");
 
     const comments = await CommentService.findByUserId(numId);
-
-    res.status(200).json({ message: "Comments fetched successfully", comments });
+    const totalCount = await CommentService.getCommentCountByUserId(numId);
+    
+    res.status(200).json({
+      message: "Comments fetched successfully",
+      totalCount,
+      comments: (await Promise.all(comments.map(async (comment) => ({
+        id: comment.id,
+        content: comment.content,
+        parentId: comment.parentId,
+        postId: comment.postId,
+        user: comment.user,
+        post: {
+          id: comment.post?.id,
+          title: comment.post?.title,
+          content: comment.post?.content,
+          community: comment.post?.community
+        },
+        children: await Promise.all(comment.children.map(async (child) => ({
+          id: child.id,
+          content: child.content,
+          parentId: child.parentId,
+          postId: child.postId,
+          user: child.user,
+          upvotes: await CommentVoteService.findByCommentId(child.id, "up"),
+          downvotes: await CommentVoteService.findByCommentId(child.id, "down"),
+          userVote: (await CommentVoteService.findByCommentIdAndUserId(child.id, userId))?.voteType,
+          createdAt: child.createdAt,
+          updatedAt: child.updatedAt,
+        }))),
+        createdAt: comment.createdAt,
+        updatedAt: comment.updatedAt,
+        userVote: (await CommentVoteService.findByCommentIdAndUserId(comment.id, userId))?.voteType,
+        upvotes: await CommentVoteService.findByCommentId(comment.id, "up"),
+        downvotes: await CommentVoteService.findByCommentId(comment.id, "down"),
+      })))).sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime()),
+    });
   }
 
   static async findByParentId(req: Request, res: Response) {

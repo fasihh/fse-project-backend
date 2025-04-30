@@ -102,6 +102,10 @@ class PostDAL {
     });
   }
 
+  static async countByUserId(userId: number) {
+    return await Post.count({ where: { userId } });
+  }
+
   static async update(id: number, post: Partial<PostCreationAttributes>) {
     return await Post.update({ ...post }, { where: { id } });
   }

@@ -235,9 +235,11 @@ class PostController {
       throw new RequestError(ExceptionType.BAD_REQUEST, "Invalid user ID");
 
     const posts = await PostService.getByUserId(numId);
+    const totalCount = await PostService.getPostCountByUserId(numId);
 
     res.status(200).json({
       message: "Posts fetched successfully",
+      totalCount,
       posts: await Promise.all(
         posts
         .filter((post) => req.user!.role === 'admin' || !post.isPending)

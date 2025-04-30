@@ -39,6 +39,10 @@ class CommentService {
     return await CommentDAL.findByUserId(userId);
   }
 
+  static async getCommentCountByUserId(userId: number) {
+    return await CommentDAL.countByUserId(userId);
+  }
+
   static async findByParentId(parentId: number) {
     return await CommentDAL.findByParentId(parentId);
   }

@@ -51,6 +51,10 @@ class PostService {
     return await PostDAL.findByUserId(userId);
   }
 
+  static async getPostCountByUserId(userId: number) {
+    return await PostDAL.countByUserId(userId);
+  }
+
   static async update(id: number, post: Partial<PostCreationAttributes>, userId: number, role: 'admin' | 'member') {
     const existingPost = await PostDAL.findById(id);
 
