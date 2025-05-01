@@ -233,17 +233,15 @@ class PostController {
     const numId = parseInt(id);
     if (isNaN(numId))
       throw new RequestError(ExceptionType.BAD_REQUEST, "Invalid user ID");
-
+    
     const posts = await PostService.getByUserId(numId);
+    
     const totalCount = await PostService.getPostCountByUserId(numId);
 
-    res.status(200).json({
-      message: "Posts fetched successfully",
-      totalCount,
-      posts: await Promise.all(
-        posts
-        .filter((post) => req.user!.role === 'admin' || !post.isPending)
-        .map(async (post) => ({
+    const mappedPosts = await Promise.all(
+      posts
+      .filter((post) => req.user!.role === 'admin' || !post.isPending)
+      .map(async (post) => ({
           id: post.id,
           title: post.title,
           content: post.content,
@@ -266,7 +264,14 @@ class PostController {
           isPinned: req.user!.role === 'admin' ? post.isPinned : undefined,
           createdAt: post.createdAt,
           updatedAt: post.updatedAt,
-      })))
+      }))
+    );
+
+
+    res.status(200).json({
+      message: "Posts fetched successfully",
+      totalCount,
+      posts: mappedPosts
     });
   }
 

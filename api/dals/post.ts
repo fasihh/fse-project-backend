@@ -91,12 +91,12 @@ class PostDAL {
         {
           model: Community,
           as: "community",
-          attributes: ["name", "description"],
+          attributes: ["id", "name", "tags", "description"],
         },
         {
           model: User,
           as: "user",
-          attributes: ["username", "displayName", "role"],
+          attributes: ["id", "username", "displayName", "role"],
         },
       ],
     });
