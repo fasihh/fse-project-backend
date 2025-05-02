@@ -8,9 +8,9 @@
     "migrate": "npx sequelize-cli db:migrate",
     "migrate:generate": "npx sequelize-cli migration:generate --name",
     "migrate:rollback": "npx sequelize-cli db:migrate:undo",
-    "seed": "npx sequelize-cli db:seed 20250419135728-seed-users.js",
+    "seed": "npx sequelize-cli db:seed --seed 20250419135728-seed-users.js",
     "seed:generate": "npx sequelize-cli seed:generate --name",
-    "seed:undo": "npx sequelize-cli db:seed:undo 20250419135728-seed-users.js",
+    "seed:undo": "npx sequelize-cli db:seed:undo --seed 20250419135728-seed-users.js",
     "dev": "tsx watch index.ts"
   },
   "keywords": [
