@@ -20,8 +20,8 @@ const fileFilter = (req: Express.Request, file: Express.Multer.File, cb: multer.
   if (allowedFormats.includes(ext)) {
     cb(null, true);
   } else {
-    throw new RequestError(ExceptionType.BAD_REQUEST, "Invalid file type");
-    // cb(new RequestError(ExceptionType.BAD_REQUEST, "Invalid file type"));
+    // throw new RequestError(ExceptionType.BAD_REQUEST, "Invalid file type");
+    cb(new RequestError(ExceptionType.BAD_REQUEST, "Invalid file type"));
   }
 };
 

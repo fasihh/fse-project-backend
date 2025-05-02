@@ -37,6 +37,10 @@ class UserFriendService {
 
     return !!userFriendship && !!friendFriendship;
   }
+
+  static async getIsFriend(userId: number, friendId: number) {
+    return !! await UserFriendDAL.findFriendship(userId, friendId)
+  }
 }
 
 export default UserFriendService;

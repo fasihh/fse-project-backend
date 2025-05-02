@@ -57,7 +57,8 @@ class UserController {
         role: user!.role,
         createdAt: user!.createdAt,
         updatedAt: user!.updatedAt,
-        isMutualFriend: await UserFriendService.checkIfMutualFriend(userId, user.id)
+        isMutualFriend: await UserFriendService.checkIfMutualFriend(userId, user.id),
+        isFriend: await UserFriendService.getIsFriend(userId, user.id)
       }
     });
   }

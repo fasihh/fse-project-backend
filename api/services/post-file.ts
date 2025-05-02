@@ -22,9 +22,13 @@ class PostFileService {
   static async setFiles(id: number, files: Express.Multer.File[], existingFiles: string) {
     const postFiles = await PostFileDAL.findByPostId(id);
     const existingFilesArray = JSON.parse(existingFiles);
+    console.log(existingFilesArray);
     for (const file of postFiles) {
-      if (!existingFilesArray.includes(file.path))
-        fs.unlinkSync(path.join(__dirname, "..", "..", file.path));
+      if (!existingFilesArray.includes(file.path)) {
+        const filePath = path.join(__dirname, "..", "..", file.path);
+        if (fs.existsSync(filePath))
+          fs.unlinkSync(filePath);
+      }
     }
 
     for (const file of files)

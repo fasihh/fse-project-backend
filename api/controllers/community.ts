@@ -164,13 +164,27 @@ class CommunityController {
 
   static async getUserCommunities(req: Request, res: Response) {
     const { id } = req.params;
+    const userId = req.user!.id!;
 
     const numId = parseInt(id);
     if (isNaN(numId))
       throw new RequestError(ExceptionType.BAD_REQUEST, "Invalid id");
 
     const communities = await CommunityMemberService.getCommunities(numId);
-    res.status(200).json({ message: "Communities retrieved successfully", communities });
+    res.status(200).json({
+      message: "Communities retrieved successfully",
+      communities: await Promise.all(communities.map(async ({ community, joined }) => ({
+        id: community?.id,
+        name: community?.name,
+        description: community?.description,
+        tags: community?.tags,
+        createdAt: community?.createdAt,
+        updatedAt: community?.updatedAt,
+        memberCount: (await CommunityMemberService.getMembers(community?.id!)).length,
+        isMember: !! await CommunityMemberService.findMember(community?.id!, userId),
+        joined: joined
+      })))
+    });
   }
 }
 

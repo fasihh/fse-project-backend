@@ -65,8 +65,6 @@ class PostDAL {
   }
 
   static async findByCommunityId(communityId: number, pageinate?: { page: number, limit: number }) {
-    const { page = 1, limit = 10 } = pageinate ?? {};
-    const offset = (page - 1) * limit;
     return await Post.findAll({ where: { communityId, isPending: false },
       include: [
         {
@@ -80,8 +78,8 @@ class PostDAL {
           attributes: ["id", "name", "tags", "description"],
         },
       ],
-      offset,
-      limit,
+      // offset,
+      // limit,
     });
   }
 

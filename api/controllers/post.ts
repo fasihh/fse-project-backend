@@ -4,7 +4,7 @@ import RequestError from "../errors/request-error";
 import PostService from "../services/post";
 import PostVoteService from "../services/post-vote";
 import PostFileService from "../services/post-file";
-import CommunityMemberService from "../services/community-member";
+import fs from "fs";
 import path from "path";
 
 class PostController {
@@ -357,11 +357,11 @@ class PostController {
     if (!file)
       throw new RequestError(ExceptionType.NOT_FOUND, "File not found");
 
-    try {
-      res.sendFile(path.join(__dirname, "..", "..", file.path));
-    } catch (error) {
+    const fileLocation = path.join(__dirname, "..", "..", file.path);
+    if (!fs.existsSync(fileLocation))
       throw new RequestError(ExceptionType.NOT_FOUND, "File not found");
-    }
+
+    res.sendFile(fileLocation);
   }
 
   static async pin(req: Request, res: Response) {
@@ -371,7 +371,7 @@ class PostController {
     if (isNaN(numId))
       throw new RequestError(ExceptionType.BAD_REQUEST, "Invalid post ID");
 
-    await PostService.pin(true, numId, req.user!.id!, req.user!.role!);
+    await PostService.pin(true, numId, req.user!.role!);
 
     res.status(200).json({ message: "Post pinned successfully" });
   }
@@ -383,7 +383,7 @@ class PostController {
     if (isNaN(numId))
       throw new RequestError(ExceptionType.BAD_REQUEST, "Invalid post ID");
 
-    await PostService.pin(false, numId, req.user!.id!, req.user!.role!);
+    await PostService.pin(false, numId, req.user!.role!);
 
     res.status(200).json({ message: "Post unpinned successfully" });
   }

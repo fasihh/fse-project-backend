@@ -79,7 +79,7 @@ class PostService {
     return await PostDAL.delete(id);
   }
 
-  static async pin(state: boolean, id: number, userId: number, role: 'admin' | 'member') {
+  static async pin(state: boolean, id: number, role: 'admin' | 'member') {
     const existingPost = await PostDAL.findById(id);
 
     if (!existingPost)
