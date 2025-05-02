@@ -131,18 +131,15 @@ class UserController {
 
     const role = key === process.env.ADMIN_KEY ? 'admin' : 'member';
     const user = await UserService.create(
+      email.split('@')[0],
       username,
-      displayName,
       email,
       password,
       role
     );
 
-    const { token } = await UserService.login({ username, email, password })
-
     res.status(201).json({
-      message: 'User registered successfully',
-      token,
+      message: 'User registered successfully. Please check your email to verify your account.',
       user: {
         id: user.id,
         username: user.username,

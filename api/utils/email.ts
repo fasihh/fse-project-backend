@@ -13,13 +13,7 @@ const transporter = nodemailer.createTransport({
 });
 
 export const sendVerificationEmail = async (email: string, token: string) => {
-  const verificationUrl = `${process.env.FRONTEND_URL}/user/verify/${token}`;
-
-  // console.log('\n=== Email Configuration ===');
-  // console.log('Sending verification email to:', email);
-  // console.log('Verification URL:', verificationUrl);
-  // console.log('Using email account:', process.env.EMAIL_USER);
-  // console.log('========================\n');
+  const verificationUrl = `${process.env.FRONTEND_URL}/verify?token=${token}`;
 
   try {
     const info = await transporter.sendMail({
@@ -48,4 +42,4 @@ export const sendVerificationEmail = async (email: string, token: string) => {
     logger.error('Failed to send email: ' + error as string);
     throw error;
   }
-}
+} 

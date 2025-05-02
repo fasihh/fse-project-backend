@@ -60,19 +60,19 @@ class UserService {
 
     // TEMPORARILY DISABLED VERIFICATION
     let user: User;
-    // if (role === 'member') {
-    //   const verificationToken = crypto.randomBytes(32).toString('hex');
-    //   // password gets hashed in the before create hook
-    //   user = await UserDAL.create({ username, displayName, email, password, role, isVerified: false, verificationToken });
-    // } else {
+    if (role === 'member') {
+      const verificationToken = crypto.randomBytes(32).toString('hex');
+      // password gets hashed in the before create hook
+      user = await UserDAL.create({ username, displayName, email, password, role, isVerified: false, verificationToken });
+    } else {
       user = await UserDAL.create({ username, displayName, email, password, role, isVerified: true });
-    // }
+    }
 
     if (!user)
       throw new RequestError(ExceptionType.INTERNAL_SERVER_ERROR, 'Failed to create user');
 
-    // if (role === 'member')
-    //   await sendVerificationEmail(email, user.verificationToken as string);
+    if (role === 'member')
+      await sendVerificationEmail(email, user.verificationToken as string);
 
     return user;
   }
