@@ -19,16 +19,14 @@ class PostFileService {
     return postFile;
   }
 
-  static async setFiles(id: number, files: Express.Multer.File[], existingFiles: string) {
-    const postFiles = await PostFileDAL.findByPostId(id);
-    const existingFilesArray = JSON.parse(existingFiles);
-    console.log(existingFilesArray);
-    for (const file of postFiles) {
-      if (!existingFilesArray.includes(file.path)) {
-        const filePath = path.join(__dirname, "..", "..", file.path);
-        if (fs.existsSync(filePath))
-          fs.unlinkSync(filePath);
-      }
+  static async setFiles(id: number, files: Express.Multer.File[], deletedFiles: string[]) {
+    for (const del_file_path of deletedFiles) {
+      const filePath = path.join(__dirname, "..", "..", del_file_path);
+      if (fs.existsSync(filePath))
+        fs.unlinkSync(filePath);
+      const file = await PostFileDAL.findByPath(del_file_path);
+      if (file)
+        await PostFileDAL.delete(file.id);
     }
 
     for (const file of files)
@@ -43,8 +41,11 @@ class PostFileService {
   static async bulkDelete(postId: number) {
     const postFiles = await PostFileDAL.findByPostId(postId);
 
-    for (const file of postFiles)
-      fs.unlinkSync(path.join(__dirname, "..", "..", file.path));
+    for (const file of postFiles) {
+      const filePath = path.join(__dirname, "..", "..", file.path)
+      if (fs.existsSync(filePath))
+        fs.unlinkSync(filePath);
+    }
 
     await PostFileDAL.bulkDelete(postId);
   }

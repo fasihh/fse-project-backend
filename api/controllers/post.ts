@@ -90,7 +90,7 @@ class PostController {
       throw new RequestError(ExceptionType.BAD_REQUEST, "All fields are required");
 
     const post = await PostService.create(title, content, communityId, userId, req.user!.role!, files.length > 0);
-    await PostFileService.setFiles(post.id, files, "[]");
+    await PostFileService.setFiles(post.id, files, []);
 
     res.status(201).json({ message: "Post created successfully", post });
   }
@@ -277,15 +277,15 @@ class PostController {
 
   static async update(req: Request, res: Response) {
     const { id } = req.params;
-    const { existingFiles } = req.body;
+    const { currentFiles, deletedFiles } = req.body;
     const files = req.files as Express.Multer.File[];
     
     const numId = parseInt(id);
     if (isNaN(numId))
       throw new RequestError(ExceptionType.BAD_REQUEST, "Invalid post ID");
 
-    if (files && existingFiles)
-      await PostFileService.setFiles(numId, files, existingFiles);
+    if (currentFiles || deletedFiles)
+      await PostFileService.setFiles(numId, files, JSON.parse(deletedFiles) || []);
 
     await PostService.update(numId, { content: req.body.content as string, title: req.body.title as string }, req.user!.id!, req.user!.role!);
     

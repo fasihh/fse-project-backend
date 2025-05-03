@@ -58,7 +58,6 @@ class UserService {
     if (existingUser)
       throw new RequestError(ExceptionType.CONFLICT);
 
-    // TEMPORARILY DISABLED VERIFICATION
     let user: User;
     if (role === 'member') {
       const verificationToken = crypto.randomBytes(32).toString('hex');
